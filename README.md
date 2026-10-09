@@ -1,0 +1,59 @@
+# Tipp-Trainer (SchreibTrainer 4.0)
+
+Lern-App zum Schreiben und Tippen für die Grundschule und Förderschule – eine einzelne HTML-Datei, die
+vollständig im Browser läuft. Keine Installation, keine Benutzerkonten, kein Tracking.
+
+**Starten:** [`SchreibTrainer_4.0.html`](SchreibTrainer_4.0.html) herunterladen und im Browser öffnen.
+
+## Funktionen
+
+- **Übungsformen**
+  - Wörterlisten: Bilddiktat, Hördiktat, Wortdiktat
+  - Fließtexte: Lesen mit Vorlesefunktion und Bilder-Quiz, Lückentext, Abtippen (mit Wörtern pro Minute)
+- **Korrektur:** Fehler werden genau markiert, es gibt einen zweiten Versuch, danach landet das Wort in den Lernwörtern. Die App erkennt Fehler bei Groß- und Kleinschreibung und eine eingeschaltete Feststelltaste.
+- **Hilfen:** Vorlesen und Blitzlesen, Urkunde als PDF.
+- **Verwaltung (Admin-Modus):** Gruppen (auch mit Passwort und frei sortierbar), Profile, Lektions-Editor.
+  - Bildersuche über ARASAAC und Wikimedia
+  - Umwandlung in Großbuchstaben
+  - KI-Prompt zum Erstellen von Lektionen
+  - Arbeitsblätter als PDF
+- **Verteilen:** Lektionen an andere Profile übertragen, Vorlagen-Bibliothek, Import und Export als JSON, Gruppen- und Gesamt-Backup.
+- **Export einzelner Übungen**
+  - als eigenständiges **HTML-Widget**
+  - als **SCORM-1.2-Paket** für Moodle und die ByCS Lernplattform
+  - jeweils wahlweise als **Offline-Fassung** mit eingebetteten Bildern
+- **Ohne CDN:** Alle Bausteine wie Gestaltung, Symbole, Schriften und PDF-Erzeugung sind in die Datei eingebettet. Internet wird nur für Übungsbilder gebraucht.
+- **Synchronisation mehrerer Geräte** (optional), mit Drei-Wege-Abgleich, damit nichts überschrieben wird:
+  - **Eigener Server:** Server-Programm für Windows und macOS im Schulnetz (iPads verbinden sich per QR-Code oder Link) oder `sync.php` auf Webspace bzw. NAS
+  - **Nextcloud** über WebDAV
+
+## Eigener Server
+
+Die fertigen Programme stehen unter [Releases](../../releases). Die Anleitung für Lehrkräfte steht in
+[`Server/Anleitung.html`](Server/Anleitung.html). Für Webspace oder NAS gibt es [`Server/sync.php`](Server/sync.php).
+
+## Entwicklung
+
+Bearbeitet wird nur `SchreibTrainer_4.0.html`. Danach führt man diese Werkzeuge aus:
+
+| Werkzeug | Zweck |
+|---|---|
+| `python3 werkzeuge/einbetten.py` | bettet Tailwind (vorkompiliert), Font Awesome, Schriften, html2pdf.js und JSZip neu ein (benötigt Node/npx) |
+| `python3 werkzeuge/pns_erzeugen.py` | erzeugt eine lokale Variante mit fest hinterlegten Nextcloud-Zugangsdaten (nicht im Repository) |
+| `sh werkzeuge/server_bauen.sh` | baut das Server-Programm für Windows und macOS (benötigt Go) |
+
+Weitere Hinweise zur Code-Pflege stehen in [`CLAUDE.md`](CLAUDE.md).
+
+## Lizenz und Drittanbieter
+
+Tipp-Trainer: CC BY-NC – Lernsachen.blog (siehe Hinweis in der App).
+
+Eingebettet bzw. verwendet werden:
+- [Tailwind CSS](https://tailwindcss.com) (MIT)
+- [Font Awesome Free](https://fontawesome.com) (Icons CC BY 4.0, Schriften SIL OFL 1.1, Code MIT)
+- die Schriften [Comic Neue](https://comicneue.com) und [Andika](https://software.sil.org/andika/) (SIL OFL 1.1)
+- [html2pdf.js](https://github.com/eKoopmans/html2pdf.js) (MIT)
+- [JSZip](https://stuk.github.io/jszip/) (MIT/GPLv3)
+- [rsc.io/qr](https://pkg.go.dev/rsc.io/qr) (BSD)
+
+Übungsbilder: [ARASAAC](https://arasaac.org) (CC BY-NC-SA), [Wikimedia](https://commons.wikimedia.org).

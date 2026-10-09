@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TippTrainer – eigener Server</title>
+<style>
+  :root { --text:#1e293b; --muted:#64748b; --bg:#f8fafc; --card:#fff; --line:#e2e8f0; --accent:#2563eb; --warn-bg:#fff7ed; --warn:#9a3412; --ok-bg:#f0fdf4; --ok:#166534; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: var(--bg); margin: 0; padding: 24px 16px; line-height: 1.55; }
+  main { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  h2 { font-size: 20px; margin: 32px 0 8px; padding-top: 8px; border-top: 1px solid var(--line); }
+  h3 { font-size: 16px; margin: 20px 0 6px; }
+  p.lead { color: var(--muted); margin-top: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; margin: 12px 0; }
+  .box { border-radius: 10px; padding: 10px 14px; margin: 12px 0; }
+  .warn { background: var(--warn-bg); color: var(--warn); }
+  .ok { background: var(--ok-bg); color: var(--ok); }
+  code { background: #f1f5f9; padding: 1px 6px; border-radius: 5px; font-size: 0.95em; word-break: break-all; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  li { margin: 4px 0; }
+  @media print { body { background: #fff; } .card { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+<h1>TippTrainer – Daten über einen eigenen Server abgleichen</h1>
+<p class="lead">So arbeiten alle Geräte einer Klasse (z.&nbsp;B. iPads) mit demselben Datenstand – ohne Cloud-Anbieter. Die Daten bleiben im Schulnetz bzw. auf dem eigenen Webspace.</p>
+
+<div class="card">
+<table>
+  <tr><th>Variante</th><th>Geeignet für</th><th>Was wird gebraucht?</th></tr>
+  <tr><td><b>A. Server-Programm</b><br>auf einem Lehrer-/Schul-PC</td><td>Abgleich im Schulnetz, z.&nbsp;B. iPad-Koffer + Lehrer-PC</td><td>Windows- oder Mac-Rechner, der während des Unterrichts läuft</td></tr>
+  <tr><td><b>B. sync.php</b><br>auf Webspace oder NAS</td><td>Abgleich auch von zu Hause, dauerhaft erreichbar</td><td>Webspace/NAS mit PHP&nbsp;7.4 oder neuer</td></tr>
+</table>
+</div>
+
+<h2>A. Server-Programm (Windows / macOS)</h2>
+
+<h3>1. Einrichten</h3>
+<ol>
+  <li>Den Ordner <b>Server</b> auf den Rechner kopieren, z.&nbsp;B. nach <code>Dokumente\TippTrainer-Server</code>. Am besten die aktuelle <code>SchreibTrainer_4.0.html</code> mit in diesen Ordner legen (sonst wird die im Programm eingebaute Fassung verwendet).</li>
+  <li><b>Windows:</b> <code>TippTrainer-Server-Windows.exe</code> doppelklicken.
+    <ul>
+      <li>Erscheint „Der Computer wurde durch Windows geschützt“: auf <i>Weitere Informationen</i> → <i>Trotzdem ausführen</i> klicken.</li>
+      <li>Fragt die Windows-Firewall nach: Zugriff in <b>privaten Netzwerken</b> zulassen.</li>
+    </ul>
+  </li>
+  <li><b>macOS:</b> <code>TippTrainer-Server-macOS</code> doppelklicken (öffnet sich im Terminal).
+    <ul>
+      <li>Meldet macOS, das Programm könne nicht geöffnet werden: <i>Systemeinstellungen → Datenschutz &amp; Sicherheit</i> → ganz unten <i>Dennoch öffnen</i> wählen und erneut doppelklicken.</li>
+      <li>Fragt macOS nach eingehenden Verbindungen: <i>Erlauben</i>.</li>
+    </ul>
+  </li>
+  <li>Es öffnet sich ein Fenster mit dem Programm (bitte geöffnet lassen) und im Browser die <b>Info-Seite</b> mit Adresse und QR-Code. Beim ersten Start wird automatisch ein geheimer <b>Schlüssel</b> erzeugt.</li>
+</ol>
+
+<h3>2. iPads verbinden</h3>
+<ol>
+  <li>Mit der <b>Kamera-App</b> den QR-Code auf der Info-Seite scannen und den Link in Safari öffnen.</li>
+  <li>Die App öffnet sich und ist <b>automatisch mit dem Server verbunden</b> – oben rechts steht „Server“.</li>
+  <li>Tipp: In Safari über <i>Teilen → Zum Home-Bildschirm</i> ein App-Symbol anlegen.</li>
+</ol>
+<p><b>Ohne Kamera:</b> Neben jedem QR-Code steht derselbe Verbindungs-Link (mit Knopf <i>Link kopieren</i>). Ihn z.&nbsp;B. per AirDrop, Mail oder über die Geräteverwaltung an die iPads schicken und dort öffnen – die App ist dann ebenfalls sofort verbunden.</p>
+<p><b>Auf dem Server-PC selbst:</b> Auf der Info-Seite <i>App öffnen</i> klicken – die App startet bereits verbunden.</p>
+<p>Andere Geräte von Hand: Die Adresse von der Info-Seite im Browser öffnen, dann <i>Speicher-Symbol oben → Eigener Server</i> → Schlüssel eintragen → <i>Verbinden</i>.</p>
+
+<div class="box warn"><b>Wichtig:</b> Die App immer über die Adresse des Servers öffnen (QR-Code bzw. <code>http://…:8080</code>). Eine App, die von einer <code>https</code>-Seite oder als Datei geöffnet wurde, darf aus Sicherheitsgründen nicht mit dem Server im Schulnetz sprechen.</div>
+
+<h3>3. Im Alltag</h3>
+<ul>
+  <li>Der Server-Rechner muss eingeschaltet sein und das Programm laufen, solange abgeglichen werden soll. Den <b>Ruhezustand</b> für diese Zeit deaktivieren.</li>
+  <li>Ist der Server nicht erreichbar, arbeiten die iPads <b>lokal weiter</b> und gleichen beim nächsten Kontakt automatisch ab. Es geht nichts verloren, auch wenn mehrere Geräte gleichzeitig arbeiten.</li>
+  <li>Alle Bausteine der App (Gestaltung, Symbole, Schriften, PDF) sind in der Datei enthalten. <b>Internet</b> wird nur noch für die <b>Übungsbilder</b> (ARASAAC/Wikimedia) gebraucht – ohne Internet läuft die App im Schulnetz vollständig, nur ohne Bilder.</li>
+  <li>Beenden: Programmfenster schließen.</li>
+</ul>
+
+<h3>4. Daten und Sicherungen</h3>
+<ul>
+  <li>Alle Daten liegen im Ordner <code>TippTrainer-Daten</code> neben dem Programm: <code>daten.json</code> (aktueller Stand), <code>Sicherungen/</code> (die letzten 50 Fassungen) und <code>einstellungen.json</code> (Schlüssel und Port).</li>
+  <li>Diesen Ordner regelmäßig zusätzlich sichern (z.&nbsp;B. auf einen USB-Stick) – oder in der App das <b>Gesamt-Backup</b> nutzen.</li>
+  <li><b>Alte Fassung wiederherstellen:</b> Programm beenden, gewünschte Datei aus <code>Sicherungen</code> als <code>daten.json</code> kopieren, Programm starten.</li>
+  <li><b>Neuen Schlüssel erzeugen</b> (z.&nbsp;B. wenn der QR-Code in falsche Hände geraten ist): Programm beenden, <code>einstellungen.json</code> löschen, Programm starten und alle Geräte neu per QR-Code verbinden.</li>
+  <li><b>App aktualisieren:</b> Neue <code>SchreibTrainer_4.0.html</code> in den Programm-Ordner legen – das Programm liefert immer die dort liegende Fassung aus.</li>
+</ul>
+
+<h3>5. Wenn es nicht klappt</h3>
+<table>
+  <tr><th>Problem</th><th>Lösung</th></tr>
+  <tr><td>iPad zeigt „Seite kann nicht geöffnet werden“</td><td>Sind iPad und Server-Rechner im <b>selben Netzwerk</b>? Viele Schul-WLANs trennen Schülergeräte von Lehrer-PCs („Client-Isolation“) – bitte mit der Schul-IT bzw. dem Sachaufwandsträger klären. Firewall-Freigabe prüfen (siehe oben).</td></tr>
+  <tr><td>Es ging gestern, heute nicht mehr</td><td>Der Rechner hat evtl. eine neue IP-Adresse bekommen. Info-Seite öffnen (<code>http://localhost:8080/info</code> auf dem Server-Rechner) und iPads neu per QR-Code verbinden. Dauerhafte Lösung: feste IP-Adresse durch die Schul-IT.</td></tr>
+  <tr><td>„Der Schlüssel ist falsch“</td><td>Schlüssel von der Info-Seite verwenden (er wurde evtl. neu erzeugt).</td></tr>
+  <tr><td>Oben rechts steht „Fehler!“</td><td>Server läuft nicht oder ist nicht erreichbar – die App arbeitet lokal weiter. Mit dem Sync-Knopf daneben erneut versuchen.</td></tr>
+  <tr><td>Port 8080 ist belegt</td><td>Das Programm nimmt automatisch den nächsten freien Port (8081 …) – die richtige Adresse steht auf der Info-Seite.</td></tr>
+</table>
+
+<h2>B. sync.php auf Webspace oder NAS</h2>
+<ol>
+  <li><code>sync.php</code> in einem Texteditor öffnen und bei <code>$SCHLUESSEL</code> einen eigenen, langen Schlüssel eintragen (mind. 12 Zeichen, z.&nbsp;B. aus einem Passwort-Generator).</li>
+  <li><code>sync.php</code> zusammen mit der <code>SchreibTrainer_4.0.html</code> in einen Ordner auf dem Webspace laden (z.&nbsp;B. <code>/tipptrainer/</code>). Der Ordner muss für PHP beschreibbar sein.</li>
+  <li>Die App über <code>https://ihre-domain.de/tipptrainer/SchreibTrainer_4.0.html</code> öffnen → <i>Speicher-Symbol → Eigener Server</i>. Die Adresse ist bereits vorausgefüllt – nur den Schlüssel eintragen und <i>Verbinden</i>.</li>
+</ol>
+<ul>
+  <li>Die Daten liegen im Unterordner <code>tipptrainer-daten</code> (wird automatisch angelegt und für Apache-Server gesperrt). Bei nginx-Servern den Ordner in der Serverkonfiguration sperren lassen.</li>
+  <li>Synology-NAS: Paket <i>Web Station</i> mit PHP installieren, Dateien in den Ordner <code>web</code> legen.</li>
+  <li>Mit <code>https</code> ist die Übertragung verschlüsselt – das ist der Vorteil gegenüber dem Server-Programm im Schulnetz.</li>
+</ul>
+
+<h2>Datenschutz – kurz</h2>
+<ul>
+  <li>Es ist <b>kein Cloud-Anbieter</b> beteiligt. Gespeichert werden Gruppen, Profilnamen/-symbole, Lektionen und Lernstände.</li>
+  <li>Beim Server-Programm erfolgt die Übertragung im Schulnetz über <code>http</code>, also <b>unverschlüsselt</b>. Wer den Schlüssel kennt, kann die Daten lesen und ändern – QR-Code und Schlüssel daher nicht weitergeben. Für Profile nur Vornamen oder Spitznamen verwenden.</li>
+  <li>Bei <code>sync.php</code> auf gemietetem Webspace: mit dem Hoster einen <b>Auftragsverarbeitungsvertrag</b> abschließen (bieten deutsche Hoster in der Regel im Kundenmenü an).</li>
+  <li>Den Einsatz mit der bzw. dem <b>Datenschutzbeauftragten der Schule</b> abstimmen.</li>
+</ul>
+</main>
+</body>
+</html>

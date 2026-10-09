@@ -1,0 +1,17 @@
+# Variante mit fest hinterlegten Nextcloud-Zugangsdaten – niemals veröffentlichen
+*PNS*.html
+_backup_vor_fixes/
+
+# Daten und Schlüssel eines laufenden Server-Programms
+TippTrainer-Daten/
+tipptrainer-daten/
+
+# Build-Ergebnisse (fertige Programme gibt es unter „Releases“)
+Server/TippTrainer-Server-macOS
+Server/TippTrainer-Server-Windows.exe
+Server/quellcode/app.html
+
+# Zwischenspeicher der Werkzeuge
+werkzeuge/.cache/
+
+.DS_Store
