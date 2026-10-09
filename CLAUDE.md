@@ -37,3 +37,11 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
   immer an beiden vornehmen.
 - Programme neu bauen (bettet die aktuelle Standardversion als Rückfall ein): `sh werkzeuge/server_bauen.sh`
   (benötigt Go). Lehrkräfte-Anleitung: `Server/Anleitung.html`.
+
+## Veröffentlichung
+
+- Öffentliches Repository: https://github.com/Majort0m0/TippTrainer (Branch `main`). Die PNS-Datei, `_backup_vor_fixes/`,
+  Server-Daten (`TippTrainer-Daten/`) und Build-Ergebnisse sind per `.gitignore` ausgeschlossen – vor jedem Commit
+  mit `git grep --cached` sicherstellen, dass keine Zugangsdaten enthalten sind.
+- Fertige Programme nicht ins Repository, sondern als GitHub-Release: ZIPs mit Programm + `SchreibTrainer_4.0.html` +
+  `Server/Anleitung.html` (ZIP erhält das Ausführungsrecht der macOS-Datei), dazu `SchreibTrainer_4.0.html` und `sync.php`.
