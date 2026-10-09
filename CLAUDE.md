@@ -45,3 +45,5 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
   mit `git grep --cached` sicherstellen, dass keine Zugangsdaten enthalten sind.
 - Fertige Programme nicht ins Repository, sondern als GitHub-Release: ZIPs mit Programm + `SchreibTrainer_4.0.html` +
   `Server/Anleitung.html` (ZIP erhält das Ausführungsrecht der macOS-Datei), dazu `SchreibTrainer_4.0.html` und `sync.php`.
+- GitHub Pages (Branch `main`, Wurzel): https://majort0m0.github.io/TippTrainer/ – `index.html` leitet auf
+  `SchreibTrainer_4.0.html` weiter. Jeder Push auf `main` aktualisiert die Online-Fassung automatisch.
