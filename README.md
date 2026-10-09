@@ -3,7 +3,7 @@
 Lern-App zum Schreiben und Tippen für die Grundschule und Förderschule – eine einzelne HTML-Datei, die
 vollständig im Browser läuft. Keine Installation, keine Benutzerkonten, kein Tracking.
 
-**Starten:** [`SchreibTrainer_4.0.html`](SchreibTrainer_4.0.html) herunterladen und im Browser öffnen.
+**Online starten:** https://majort0m0.github.io/TippTrainer/ – oder [`SchreibTrainer_4.0.html`](SchreibTrainer_4.0.html) herunterladen und im Browser öffnen (funktioniert auch offline, nur ohne Übungsbilder).
 
 ## Funktionen
 
