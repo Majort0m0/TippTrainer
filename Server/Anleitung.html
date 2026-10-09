@@ -96,10 +96,12 @@
 </table>
 
 <h2>B. sync.php auf Webspace oder NAS</h2>
+<p>Fertiges Paket: <b>TippTrainer-Webspace-PHP.zip</b> (unter „Releases“ auf GitHub). Es enthält den Ordner <code>tipptrainer</code> mit der App, <code>sync.php</code>, einer Startseite und dieser Anleitung.</p>
 <ol>
-  <li><code>sync.php</code> in einem Texteditor öffnen und bei <code>$SCHLUESSEL</code> einen eigenen, langen Schlüssel eintragen (mind. 12 Zeichen, z.&nbsp;B. aus einem Passwort-Generator).</li>
-  <li><code>sync.php</code> zusammen mit der <code>SchreibTrainer_4.0.html</code> in einen Ordner auf dem Webspace laden (z.&nbsp;B. <code>/tipptrainer/</code>). Der Ordner muss für PHP beschreibbar sein.</li>
-  <li>Die App über <code>https://ihre-domain.de/tipptrainer/SchreibTrainer_4.0.html</code> öffnen → <i>Speicher-Symbol → Eigener Server</i>. Die Adresse ist bereits vorausgefüllt – nur den Schlüssel eintragen und <i>Verbinden</i>.</li>
+  <li>ZIP entpacken und im Ordner <code>tipptrainer</code> die Datei <code>sync.php</code> in einem Texteditor öffnen: bei <code>$SCHLUESSEL</code> einen eigenen, langen Schlüssel eintragen (mind. 12 Zeichen, z.&nbsp;B. aus einem Passwort-Generator) und speichern.</li>
+  <li>Den ganzen Ordner <code>tipptrainer</code> per FTP bzw. Dateimanager auf den Webspace laden. Der Ordner muss für PHP beschreibbar sein (meist automatisch der Fall).</li>
+  <li>Die App über <code>https://ihre-domain.de/tipptrainer/</code> öffnen → <i>Speicher-Symbol → Eigener Server</i>. Die Adresse ist bereits vorausgefüllt – nur den Schlüssel eintragen und <i>Verbinden</i>.</li>
+  <li>Auf allen weiteren Geräten dieselbe Adresse öffnen und ebenso verbinden.</li>
 </ol>
 <ul>
   <li>Die Daten liegen im Unterordner <code>tipptrainer-daten</code> (wird automatisch angelegt und für Apache-Server gesperrt). Bei nginx-Servern den Ordner in der Serverkonfiguration sperren lassen.</li>

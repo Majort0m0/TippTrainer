@@ -43,7 +43,8 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
 - Öffentliches Repository: https://github.com/Majort0m0/TippTrainer (Branch `main`). Die PNS-Datei, `_backup_vor_fixes/`,
   Server-Daten (`TippTrainer-Daten/`) und Build-Ergebnisse sind per `.gitignore` ausgeschlossen – vor jedem Commit
   mit `git grep --cached` sicherstellen, dass keine Zugangsdaten enthalten sind.
-- Fertige Programme nicht ins Repository, sondern als GitHub-Release: ZIPs mit Programm + `SchreibTrainer_4.0.html` +
-  `Server/Anleitung.html` (ZIP erhält das Ausführungsrecht der macOS-Datei), dazu `SchreibTrainer_4.0.html` und `sync.php`.
+- Fertige Programme nicht ins Repository, sondern als GitHub-Release. Pakete mit `sh werkzeuge/release_pakete.sh`
+  erzeugen (Ordner `dist/`, ignoriert): Server-ZIPs für Windows/macOS, `TippTrainer-Webspace-PHP.zip`, dazu App und
+  `sync.php` einzeln. Hochladen: `gh release upload <tag> dist/* --clobber` (ZIP erhält das Ausführungsrecht der macOS-Datei).
 - GitHub Pages (Branch `main`, Wurzel): https://majort0m0.github.io/TippTrainer/ – `index.html` leitet auf
   `SchreibTrainer_4.0.html` weiter. Jeder Push auf `main` aktualisiert die Online-Fassung automatisch.

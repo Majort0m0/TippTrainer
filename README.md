@@ -29,8 +29,12 @@ vollständig im Browser läuft. Keine Installation, keine Benutzerkonten, kein T
 
 ## Eigener Server
 
-Die fertigen Programme stehen unter [Releases](../../releases). Die Anleitung für Lehrkräfte steht in
-[`Server/Anleitung.html`](Server/Anleitung.html). Für Webspace oder NAS gibt es [`Server/sync.php`](Server/sync.php).
+Unter [Releases](../../releases) gibt es fertige Pakete:
+
+- **TippTrainer-Server-Windows.zip** und **TippTrainer-Server-macOS.zip**: Server-Programm für einen PC im Schulnetz, mit App und Anleitung. Entpacken und doppelklicken; die iPads verbinden sich per QR-Code oder Link.
+- **TippTrainer-Webspace-PHP.zip**: Ordner `tipptrainer` mit App, Startseite, `sync.php` und Anleitung für einen Webspace oder ein NAS mit PHP. Schlüssel in `sync.php` eintragen, den Ordner hochladen und `https://ihre-domain.de/tipptrainer/` öffnen.
+
+Die Anleitung für Lehrkräfte steht in [`Server/Anleitung.html`](Server/Anleitung.html).
 
 ## Entwicklung
 
@@ -41,6 +45,7 @@ Bearbeitet wird nur `SchreibTrainer_4.0.html`. Danach führt man diese Werkzeuge
 | `python3 werkzeuge/einbetten.py` | bettet Tailwind (vorkompiliert), Font Awesome, Schriften, html2pdf.js und JSZip neu ein (benötigt Node/npx) |
 | `python3 werkzeuge/pns_erzeugen.py` | erzeugt eine lokale Variante mit fest hinterlegten Nextcloud-Zugangsdaten (nicht im Repository) |
 | `sh werkzeuge/server_bauen.sh` | baut das Server-Programm für Windows und macOS (benötigt Go) |
+| `sh werkzeuge/release_pakete.sh` | erstellt die Download-Pakete für ein Release im Ordner `dist/` |
 
 Weitere Hinweise zur Code-Pflege stehen in [`CLAUDE.md`](CLAUDE.md).
 
