@@ -25,7 +25,7 @@ vollständig im Browser läuft. Keine Installation, keine Benutzerkonten, kein T
   - jeweils wahlweise als **Offline-Fassung** mit eingebetteten Bildern
 - **Ohne CDN:** Alle Bausteine wie Gestaltung, Symbole, Schriften und PDF-Erzeugung sind in die Datei eingebettet. Internet wird nur für Übungsbilder gebraucht.
 - **Synchronisation mehrerer Geräte** (optional), mit Drei-Wege-Abgleich, damit nichts überschrieben wird:
-  - **Eigener Server:** Server-Programm für Windows und macOS im Schulnetz (iPads verbinden sich per QR-Code oder Link) oder `sync.php` auf Webspace bzw. NAS
+  - **Eigener Server:** Server-Programm für Windows, macOS, Linux und Raspberry Pi im Schulnetz (iPads verbinden sich per QR-Code oder Link) oder `sync.php` auf Webspace bzw. NAS
   - **Nextcloud** über WebDAV
 
 ## Eigener Server
@@ -33,7 +33,10 @@ vollständig im Browser läuft. Keine Installation, keine Benutzerkonten, kein T
 Unter [Releases](../../releases) gibt es fertige Pakete:
 
 - **TippTrainer-Server-Windows.zip** und **TippTrainer-Server-macOS.zip**: Server-Programm für einen PC im Schulnetz, mit App und Anleitung. Entpacken und doppelklicken; die iPads verbinden sich per QR-Code oder Link.
+- **TippTrainer-Server-Linux-x64.tar.gz**, **TippTrainer-Server-RaspberryPi-64bit.tar.gz** und **-32bit.tar.gz**: dasselbe Programm für Linux und den Raspberry Pi, als Dienst mit Installationsskript (`sudo sh installieren.sh`), auch ohne Bildschirm bedienbar (`--info`, `--passwort`).
 - **TippTrainer-Webspace-PHP.zip**: Ordner `tipptrainer` mit App, Startseite, `sync.php` und Anleitung für einen Webspace oder ein NAS mit PHP. Schlüssel in `sync.php` eintragen, den Ordner hochladen und `https://ihre-domain.de/tipptrainer/` öffnen.
+
+**Admin-Passwort:** Das Server-Programm erzeugt beim ersten Start ein Admin-Passwort für die App, zeigt es auf der Info-Seite bzw. per Kommandozeile an und liefert der App nur einen Hash. Ohne Server-Programm (Einzel-Datei, Nextcloud, `sync.php`) legt die Lehrkraft beim ersten Admin-Zugriff ein eigenes Passwort fest (mit Notfall-Code); die PNS-Variante behält ihr festes Passwort.
 
 Die Anleitung für Lehrkräfte steht in [`Server/Anleitung.html`](Server/Anleitung.html).
 
@@ -45,7 +48,7 @@ Bearbeitet wird nur `SchreibTrainer_4.0.html`. Danach führt man diese Werkzeuge
 |---|---|
 | `python3 werkzeuge/einbetten.py` | bettet Tailwind (vorkompiliert), Font Awesome, Schriften, html2pdf.js und JSZip neu ein (benötigt Node/npx) |
 | `python3 werkzeuge/pns_erzeugen.py` | erzeugt eine lokale Variante mit fest hinterlegten Nextcloud-Zugangsdaten (nicht im Repository) |
-| `sh werkzeuge/server_bauen.sh` | baut das Server-Programm für Windows und macOS (benötigt Go) |
+| `sh werkzeuge/server_bauen.sh` | baut das Server-Programm für Windows, macOS und Linux/Raspberry Pi (benötigt Go) |
 | `sh werkzeuge/release_pakete.sh` | erstellt die Download-Pakete für ein Release im Ordner `dist/` |
 
 Weitere Hinweise zur Code-Pflege stehen in [`CLAUDE.md`](CLAUDE.md).

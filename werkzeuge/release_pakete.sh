@@ -1,6 +1,8 @@
 #!/bin/sh
 # Erstellt die Download-Pakete für ein GitHub-Release im Ordner dist/:
 #   TippTrainer-Server-Windows.zip, TippTrainer-Server-macOS.zip  (Programm + App + Anleitung)
+#   TippTrainer-Server-Linux-x64.tar.gz, TippTrainer-Server-RaspberryPi-64bit.tar.gz, -32bit.tar.gz
+#                                              (Programm + App + Anleitung + Dienst-Datei + Installationsskript)
 #   TippTrainer-Webspace-PHP.zip                                   (Ordner tipptrainer: App, index.html, sync.php, Anleitung)
 #   SchreibTrainer_4.0.html, sync.php                               (einzeln)
 # Vorher die Programme bauen: sh werkzeuge/server_bauen.sh
@@ -17,6 +19,17 @@ paket_server() { # $1 = Name im ZIP, $2 = Programmdatei
 }
 paket_server TippTrainer-Server-Windows.zip TippTrainer-Server-Windows.exe
 paket_server TippTrainer-Server-macOS.zip TippTrainer-Server-macOS
+
+paket_linux() { # $1 = Name des Pakets, $2 = Programmdatei (Server/…)
+    rm -rf dist/tmp/* && mkdir -p dist/tmp/TippTrainer-Server
+    cp "Server/$2" dist/tmp/TippTrainer-Server/tipptrainer-server
+    cp SchreibTrainer_4.0.html Server/Anleitung.html Server/linux/tipptrainer.service Server/linux/installieren.sh Server/linux/deinstallieren.sh dist/tmp/TippTrainer-Server/
+    chmod 755 dist/tmp/TippTrainer-Server/tipptrainer-server
+    (cd dist/tmp && tar -czf "$ROOT/dist/$1" TippTrainer-Server)
+}
+paket_linux TippTrainer-Server-Linux-x64.tar.gz TippTrainer-Server-Linux-x64
+paket_linux TippTrainer-Server-RaspberryPi-64bit.tar.gz TippTrainer-Server-Linux-arm64
+paket_linux TippTrainer-Server-RaspberryPi-32bit.tar.gz TippTrainer-Server-Linux-arm32
 
 rm -rf dist/tmp/* && mkdir -p dist/tmp/tipptrainer
 cp SchreibTrainer_4.0.html index.html Server/sync.php Server/Anleitung.html dist/tmp/tipptrainer/

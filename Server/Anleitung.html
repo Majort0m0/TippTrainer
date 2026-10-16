@@ -32,11 +32,13 @@
 <table>
   <tr><th>Variante</th><th>Geeignet für</th><th>Was wird gebraucht?</th></tr>
   <tr><td><b>A. Server-Programm</b><br>auf einem Lehrer-/Schul-PC</td><td>Abgleich im Schulnetz, z.&nbsp;B. iPad-Koffer + Lehrer-PC</td><td>Windows- oder Mac-Rechner, der während des Unterrichts läuft</td></tr>
+  <tr><td><b>C. Linux / Raspberry Pi</b><br>als Dauerbetrieb im Schulnetz</td><td>Immer eingeschalteter kleiner Server, startet automatisch</td><td>Raspberry Pi (oder Linux-PC) mit Netzwerkanschluss</td></tr>
   <tr><td><b>B. sync.php</b><br>auf Webspace oder NAS</td><td>Abgleich auch von zu Hause, dauerhaft erreichbar</td><td>Webspace/NAS mit PHP&nbsp;7.4 oder neuer</td></tr>
 </table>
 </div>
 
 <h2>A. Server-Programm (Windows / macOS)</h2>
+<p>Für Linux und den Raspberry Pi gilt dasselbe Programm – siehe Abschnitt C.</p>
 
 <h3>1. Einrichten</h3>
 <ol>
@@ -53,7 +55,7 @@
       <li>Fragt macOS nach eingehenden Verbindungen: <i>Erlauben</i>.</li>
     </ul>
   </li>
-  <li>Es öffnet sich ein Fenster mit dem Programm (bitte geöffnet lassen) und im Browser die <b>Info-Seite</b> mit Adresse und QR-Code. Beim ersten Start wird automatisch ein geheimer <b>Schlüssel</b> erzeugt.</li>
+  <li>Es öffnet sich ein Fenster mit dem Programm (bitte geöffnet lassen) und im Browser die <b>Info-Seite</b> mit Adresse und QR-Code. Beim ersten Start wird automatisch ein geheimer <b>Schlüssel</b> und ein <b>Admin-Passwort</b> für die App erzeugt (siehe „Admin-Passwort“ unten).</li>
 </ol>
 
 <h3>2. iPads verbinden</h3>
@@ -67,6 +69,14 @@
 <p>Andere Geräte von Hand: Die Adresse von der Info-Seite im Browser öffnen, dann <i>Speicher-Symbol oben → Eigener Server</i> → Schlüssel eintragen → <i>Verbinden</i>.</p>
 
 <div class="box warn"><b>Wichtig:</b> Die App immer über die Adresse des Servers öffnen (QR-Code bzw. <code>http://…:8080</code>). Eine App, die von einer <code>https</code>-Seite oder als Datei geöffnet wurde, darf aus Sicherheitsgründen nicht mit dem Server im Schulnetz sprechen.</div>
+
+<h3>Admin-Passwort der App</h3>
+<ul>
+  <li>Mit dem <b>Admin-Passwort</b> schalten Lehrkräfte in der App den Admin-Modus ein (Lektionen, Profile, Gruppen verwalten). Das Server-Programm erzeugt es beim ersten Start zufällig und zeigt es auf der <b>Info-Seite</b> an.</li>
+  <li><b>Ändern:</b> auf der Info-Seite (nur am Server-Rechner selbst erreichbar) unter „Admin-Passwort der App“ ein eigenes Passwort eintragen oder ein zufälliges erzeugen. Die Änderung gilt sofort für alle Geräte, die die App vom Server laden – beim nächsten Laden der Seite.</li>
+  <li>Die App erhält vom Server nur einen <b>Hash</b> (keine Klartext-Weitergabe). Das ist ein Schutz gegen neugierige Kinder, kein Hochsicherheitsverfahren.</li>
+  <li><b>Vergessen?</b> Passwort auf der Info-Seite ansehen oder neu setzen. Ohne Bildschirm: in einem Terminal im Programmordner <code>./tipptrainer-server --passwort</code> (anzeigen) bzw. <code>--passwort-setzen NEUESPASSWORT</code>.</li>
+</ul>
 
 <h3>3. Im Alltag</h3>
 <ul>
@@ -92,6 +102,7 @@
   <tr><td>Es ging gestern, heute nicht mehr</td><td>Der Rechner hat evtl. eine neue IP-Adresse bekommen. Info-Seite öffnen (<code>http://localhost:8080/info</code> auf dem Server-Rechner) und iPads neu per QR-Code verbinden. Dauerhafte Lösung: feste IP-Adresse durch die Schul-IT.</td></tr>
   <tr><td>„Der Schlüssel ist falsch“</td><td>Schlüssel von der Info-Seite verwenden (er wurde evtl. neu erzeugt).</td></tr>
   <tr><td>Oben rechts steht „Fehler!“</td><td>Server läuft nicht oder ist nicht erreichbar – die App arbeitet lokal weiter. Mit dem Sync-Knopf daneben erneut versuchen.</td></tr>
+  <tr><td>Admin-Passwort unbekannt</td><td>Info-Seite öffnen (<code>http://localhost:8080/info</code> auf dem Server-Rechner) – dort steht es und lässt sich ändern. Auf einem Raspberry Pi: <code>./tipptrainer-server --passwort</code> im Terminal.</td></tr>
   <tr><td>Port 8080 ist belegt</td><td>Das Programm nimmt automatisch den nächsten freien Port (8081 …) – die richtige Adresse steht auf der Info-Seite.</td></tr>
 </table>
 
@@ -107,6 +118,50 @@
   <li>Die Daten liegen im Unterordner <code>tipptrainer-daten</code> (wird automatisch angelegt und für Apache-Server gesperrt). Bei nginx-Servern den Ordner in der Serverkonfiguration sperren lassen.</li>
   <li>Synology-NAS: Paket <i>Web Station</i> mit PHP installieren, Dateien in den Ordner <code>web</code> legen.</li>
   <li>Mit <code>https</code> ist die Übertragung verschlüsselt – das ist der Vorteil gegenüber dem Server-Programm im Schulnetz.</li>
+</ul>
+
+<h2>C. Linux und Raspberry Pi</h2>
+<p>Das Server-Programm gibt es auch für Linux-PCs und den Raspberry Pi. Es läuft dort als Dienst im Hintergrund, startet beim Hochfahren automatisch und braucht keinen Bildschirm. Alles Weitere (Daten, Schlüssel, Passwort, iPads verbinden) funktioniert wie in Abschnitt A.</p>
+
+<h3>1. Das passende Paket wählen</h3>
+<table>
+  <tr><th>Paket</th><th>für</th></tr>
+  <tr><td><code>TippTrainer-Server-RaspberryPi-64bit.tar.gz</code></td><td>Raspberry Pi 3, 4, 5 und Zero 2 W mit <b>64-Bit</b>-System (Raspberry Pi OS 64 bit) – heute der Normalfall</td></tr>
+  <tr><td><code>TippTrainer-Server-RaspberryPi-32bit.tar.gz</code></td><td>Raspberry Pi mit 32-Bit-System</td></tr>
+  <tr><td><code>TippTrainer-Server-Linux-x64.tar.gz</code></td><td>normaler Linux-PC (Intel/AMD)</td></tr>
+</table>
+<p>Welches System läuft? Im Terminal <code>uname -m</code> eingeben: <code>aarch64</code> = 64 Bit, <code>armv7l</code> = 32 Bit, <code>x86_64</code> = Linux-PC.</p>
+
+<h3>2. Raspberry Pi vorbereiten (einmalig)</h3>
+<ol>
+  <li>Mit dem <b>Raspberry Pi Imager</b> <i>Raspberry Pi OS Lite (64-bit)</i> auf die SD-Karte schreiben (ohne Desktop, spart Arbeitsspeicher). Vor dem Schreiben im Imager unter „Einstellungen“ festlegen: <b>Hostname</b> (z.&nbsp;B. <code>tipptrainer</code>), Benutzer und Passwort, <b>SSH aktivieren</b> und ggf. WLAN.</li>
+  <li>Pi mit dem Netzwerk verbinden und starten. Per SSH anmelden: <code>ssh BENUTZER@tipptrainer.local</code>.</li>
+  <li>Empfehlung für den Dauerbetrieb: eine gute SD-Karte (A2) oder noch besser eine SSD – SD-Karten verschleißen bei vielen Schreibvorgängen.</li>
+</ol>
+
+<h3>3. Installieren</h3>
+<ol>
+  <li>Das passende Paket auf den Pi kopieren (z.&nbsp;B. <code>scp</code> oder Download vom GitHub-Release) und entpacken: <code>tar -xzf TippTrainer-Server-RaspberryPi-64bit.tar.gz</code></li>
+  <li><code>cd TippTrainer-Server &amp;&amp; sudo sh installieren.sh</code></li>
+  <li>Das Skript legt einen eigenen Benutzer an, richtet den Dienst <code>tipptrainer</code> ein, startet ihn und zeigt am Ende <b>Adresse, Schlüssel, Admin-Passwort und einen QR-Code</b> im Terminal. iPads: QR-Code mit der Kamera scannen.</li>
+  <li>Programm und Daten liegen unter <code>/opt/tipptrainer</code> (Daten: <code>TippTrainer-Daten</code>).</li>
+</ol>
+
+<h3>4. Im Alltag</h3>
+<ul>
+  <li>Verbindungsdaten erneut anzeigen: <code>cd /opt/tipptrainer &amp;&amp; sudo -u tipptrainer ./tipptrainer-server --info</code></li>
+  <li>Admin-Passwort anzeigen oder ändern: <code>--passwort</code> bzw. <code>--passwort-setzen NEUESPASSWORT</code> (gilt sofort, ohne Neustart).</li>
+  <li>Dienst steuern: <code>sudo systemctl status|restart|stop tipptrainer</code>; Protokoll: <code>sudo journalctl -u tipptrainer -f</code></li>
+  <li><b>Aktualisieren:</b> neues Paket entpacken und <code>sudo sh installieren.sh</code> erneut ausführen – die Daten bleiben erhalten.</li>
+  <li><b>Entfernen:</b> <code>sudo sh deinstallieren.sh</code> (Daten bleiben) bzw. <code>--mit-daten</code>.</li>
+  <li><b>Sicherung:</b> den Ordner <code>/opt/tipptrainer/TippTrainer-Daten</code> regelmäßig kopieren.</li>
+</ul>
+
+<h3>5. Hinweise</h3>
+<ul>
+  <li><b>Feste Adresse:</b> Dem Pi im Router eine feste IP-Adresse geben (DHCP-Reservierung), sonst müssen die iPads nach einer neuen Adresse neu verbunden werden. Mit dem Namen <code>tipptrainer.local</code> klappt es oft auch ohne feste IP.</li>
+  <li><b>Weitere Programme auf demselben Pi:</b> Jedes Programm braucht einen eigenen Port. Der TippTrainer-Server nimmt 8080 und weicht bei Belegung <i>automatisch</i> auf den nächsten freien Port aus – dann ändert sich die Adresse für die iPads. Deshalb: den gewünschten Port fest in <code>/opt/tipptrainer/TippTrainer-Daten/einstellungen.json</code> eintragen (<code>"port": 8090</code>) und den Dienst neu starten; den Port 8080 dann nicht für andere Programme verwenden.</li>
+  <li>Der Server ist nur für das <b>Schulnetz</b> gedacht (HTTP ohne Verschlüsselung) und sollte nicht direkt aus dem Internet erreichbar sein.</li>
 </ul>
 
 <h2>Datenschutz – kurz</h2>

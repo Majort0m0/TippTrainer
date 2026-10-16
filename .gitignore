@@ -9,6 +9,7 @@ tipptrainer-daten/
 # Build-Ergebnisse (fertige Programme gibt es unter „Releases“)
 Server/TippTrainer-Server-macOS
 Server/TippTrainer-Server-Windows.exe
+Server/TippTrainer-Server-Linux-*
 Server/quellcode/app.html
 
 # Zwischenspeicher der Werkzeuge

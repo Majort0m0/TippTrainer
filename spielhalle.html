@@ -254,7 +254,11 @@ const AudioCore = (() => {
       if (!ac) {
         const AC = window.AudioContext || window.webkitAudioContext;
         if (!AC) return;
-        ac = new AC();
+        // In einem Fenster des Tipp-Trainers legt die App den Audio-Kontext beim Klick (Nutzergeste) selbst an
+        // und gibt ihn hierher weiter – Safari/iPad erlaubt Ton in eingebetteten Fenstern sonst oft nicht.
+        let shared = null;
+        try { shared = window.parent !== window ? window.parent.__ttArcadeAudio : null; } catch (e) { shared = null; }
+        ac = shared && shared.state !== 'closed' ? shared : new AC();
         master = ac.createGain();
         master.gain.value = muted ? 0 : VOL;
         master.connect(ac.destination);

@@ -1,0 +1,21 @@
+[Unit]
+Description=TippTrainer-Server (Schul-Server für den Tipp-Trainer)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=tipptrainer
+WorkingDirectory=/opt/tipptrainer
+Environment=TIPPTRAINER_KEIN_BROWSER=1
+ExecStart=/opt/tipptrainer/tipptrainer-server
+Restart=on-failure
+RestartSec=5
+# Der Dienst darf nur seinen eigenen Ordner beschreiben
+NoNewPrivileges=true
+ProtectSystem=strict
+ReadWritePaths=/opt/tipptrainer
+ProtectHome=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

@@ -5,11 +5,12 @@
 // - speichert alle Daten in einem Ordner neben dem Programm (TippTrainer-Daten)
 //
 // Sync-Protokoll (identisch zu sync.php):
-//   GET  /sync.php   Header X-TippTrainer-Key            → 200 + JSON + X-TippTrainer-Version | 404 (noch keine Daten)
-//   PUT  /sync.php   Header X-TippTrainer-Key,
-//                    X-TippTrainer-If-Match: <version> | "*none*"
-//                                                       → 200 + X-TippTrainer-Version | 412 (anderes Gerät war schneller)
-//   Falscher/fehlender Schlüssel → 401
+//
+//	GET  /sync.php   Header X-TippTrainer-Key            → 200 + JSON + X-TippTrainer-Version | 404 (noch keine Daten)
+//	PUT  /sync.php   Header X-TippTrainer-Key,
+//	                 X-TippTrainer-If-Match: <version> | "*none*"
+//	                                                    → 200 + X-TippTrainer-Version | 412 (anderes Gerät war schneller)
+//	Falscher/fehlender Schlüssel → 401
 package main
 
 import (
@@ -51,8 +52,10 @@ const (
 )
 
 type config struct {
-	Key  string `json:"schluessel"`
-	Port int    `json:"port"`
+	Key           string `json:"schluessel"`
+	Port          int    `json:"port"`
+	AdminPassword string `json:"adminPasswort,omitempty"` // Admin-Passwort der App (siehe admin.go)
+	AdminSalt     string `json:"adminSalz,omitempty"`
 }
 
 var (
@@ -65,6 +68,11 @@ var (
 
 func main() {
 	log.SetFlags(log.Ltime)
+	// Hilfe ohne jede Nebenwirkung (legt keinen Datenordner an) – auch als Prüfung, ob das Programm hier läuft
+	if len(os.Args) > 1 && isHelpArg(os.Args[1]) {
+		fmt.Print(cliHelp)
+		return
+	}
 	exe, err := os.Executable()
 	if err != nil {
 		fatal("Programmpfad nicht ermittelbar: %v", err)
@@ -76,6 +84,11 @@ func main() {
 		fatal("Datenordner kann nicht angelegt werden (%s): %v", dataDir, err)
 	}
 	loadOrCreateConfig()
+	if handleCLI(os.Args[1:]) {
+		return
+	}
+	newPassword := ensureAdminPassword()
+	infoToken = randomString("abcdefghijklmnopqrstuvwxyz0123456789", 24)
 
 	ln, err := listen(cfg.Port)
 	if err != nil {
@@ -88,9 +101,10 @@ func main() {
 	mux.HandleFunc("/sync", handleSync)
 	mux.HandleFunc("/qr.png", handleQR)
 	mux.HandleFunc("/info", handleInfo)
+	mux.HandleFunc("/info/passwort", handleAdminPasswordForm)
 	mux.HandleFunc("/", handleApp)
 
-	printBanner()
+	printBanner(newPassword)
 	if os.Getenv("TIPPTRAINER_KEIN_BROWSER") == "" {
 		go func() {
 			time.Sleep(600 * time.Millisecond)
@@ -316,7 +330,11 @@ func handleApp(w http.ResponseWriter, r *http.Request) {
 // Kennzeichnet die ausgelieferte App als "lokal bereitgestellt": Die App blendet dann den
 // Datenschutz-Hinweis beim ersten Start aus (siehe bootApp() in der HTML-Datei).
 func markLocalServer(page []byte) []byte {
-	const marker = `<meta name="tipptrainer-lokaler-server" content="1">`
+	marker := `<meta name="tipptrainer-lokaler-server" content="1">`
+	// Admin-Passwort der App: nur als gesalzener Hash (siehe admin.go)
+	if v := adminMetaValue(); v != "" {
+		marker += "\n    " + `<meta name="tipptrainer-admin" content="` + v + `">`
+	}
 	i := bytes.Index(page, []byte("<head>"))
 	if i < 0 {
 		return page
@@ -419,6 +437,19 @@ var infoTpl = template.Must(template.New("info").Parse(`<!doctype html>
  <a class="local" href="{{.LocalLink}}" target="_blank">App öffnen</a>
 </div>
 <div class="card">
+ <b>Admin-Passwort der App</b>
+ {{if .Saved}}<div class="ok">Gespeichert – gilt ab dem nächsten Laden der App.</div>{{end}}
+ {{if .Failed}}<div class="warn">Das Passwort muss mindestens {{.MinLen}} Zeichen lang sein.</div>{{end}}
+ <p>Mit diesem Passwort schalten Lehrkräfte in der App den Admin-Modus ein. Es gilt für alle Geräte, die diese App vom Server laden.</p>
+ <div class="big" style="font-size:22px">{{.AdminPassword}}</div>
+ <form method="post" action="/info/passwort" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+  <input type="hidden" name="token" value="{{.Token}}">
+  <input type="text" name="passwort" placeholder="Neues Passwort" minlength="{{.MinLen}}" style="padding:8px;border:1px solid #cbd5e1;border-radius:8px">
+  <button type="submit">Passwort ändern</button>
+  <button type="submit" name="zufall" value="1">Zufälliges Passwort erzeugen</button>
+ </form>
+</div>
+<div class="card">
  <b>Manuell verbinden</b> (z.&nbsp;B. am Lehrer-PC): App öffnen → Speicher-Symbol oben → „Eigener Server“ →<br>
  Adresse: <code>http://&lt;Adresse oben&gt;:{{.Port}}</code> &nbsp; Schlüssel: <code>{{.Key}}</code>
  <ul>
@@ -455,13 +486,16 @@ func handleInfo(w http.ResponseWriter, r *http.Request) {
 	for _, ip := range lanAddresses() {
 		addrs = append(addrs, addr{IP: ip, Link: connectURL(ip)})
 	}
+	q := r.URL.Query()
 	_ = infoTpl.Execute(w, map[string]any{
+		"AdminPassword": adminPassword(), "Token": infoToken,
+		"Saved": q.Get("gespeichert") != "", "Failed": q.Get("fehler") != "", "MinLen": adminMinLength,
 		"Port": port, "Addrs": addrs, "Key": cfg.Key, "DataDir": dataDir,
 		"LocalLink": fmt.Sprintf("http://localhost:%d/#tt-server=%s", port, cfg.Key),
 	})
 }
 
-func printBanner() {
+func printBanner(newPassword bool) {
 	fmt.Println("==============================================================")
 	fmt.Println("  TippTrainer-Server läuft – dieses Fenster geöffnet lassen")
 	fmt.Println("==============================================================")
@@ -470,6 +504,10 @@ func printBanner() {
 		fmt.Printf("  Link inkl. Schlüssel:    %s\n", connectURL(ip))
 	}
 	fmt.Printf("  Schlüssel:               %s\n", cfg.Key)
+	fmt.Printf("  Admin-Passwort der App:  %s\n", adminPassword())
+	if newPassword {
+		fmt.Println("  (neu erzeugt – änderbar auf der Info-Seite oder mit:  --passwort-setzen NEU)")
+	}
 	fmt.Printf("  Daten:                   %s\n", dataDir)
 	fmt.Printf("  QR-Codes & Hilfe:        http://localhost:%d/info\n", port)
 	fmt.Println("==============================================================")

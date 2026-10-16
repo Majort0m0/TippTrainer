@@ -39,9 +39,16 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
 ## Server (`Server/`)
 
 - `sync.php` und das Go-Programm (`Server/quellcode/main.go`) implementieren dasselbe Sync-Protokoll – Änderungen
-  immer an beiden vornehmen.
-- Programme neu bauen (bettet die aktuelle Standardversion als Rückfall ein): `sh werkzeuge/server_bauen.sh`
-  (benötigt Go). Lehrkräfte-Anleitung: `Server/Anleitung.html`.
+  immer an beiden vornehmen. Nur das Go-Programm liefert die App aus und ist „Passwortgeber“ (`admin.go`).
+- **Admin-Passwort:** drei Betriebsarten in der App (`adminAuthMode()`): `fixed` (PNS: `ADMIN_PASSWORD`), `server`
+  (Meta-Tag `tipptrainer-admin` vom Server-Programm, Hash `v1$runden$salz$hash`) und `local` (Einzel-HTML:
+  `appSettings.adminHash`/`adminRecovery`, per Sync abgeglichen). Das Hash-Verfahren in `adminKdf()` (App) und
+  `adminHash()` (`admin.go`) muss identisch bleiben; eigene SHA-256-Berechnung, weil WebCrypto über http:// fehlt.
+  In der Standardversion ist `ADMIN_PASSWORD` leer (`""`) – `pns_erzeugen.py` setzt dort den PNS-Wert ein.
+- Linux/Raspberry Pi: `Server/linux/` (Dienst-Datei, `installieren.sh`, `deinstallieren.sh`); Server-Parameter
+  `--info`, `--passwort`, `--passwort-setzen`, `--passwort-neu`, `--hilfe` für Rechner ohne Bildschirm.
+- Programme (Windows, macOS, Linux x64/arm64/arm32) neu bauen (bettet die aktuelle Standardversion als Rückfall ein):
+  `sh werkzeuge/server_bauen.sh` (benötigt Go). Lehrkräfte-Anleitung: `Server/Anleitung.html`.
 
 ## Veröffentlichung
 
@@ -49,7 +56,7 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
   Server-Daten (`TippTrainer-Daten/`) und Build-Ergebnisse sind per `.gitignore` ausgeschlossen – vor jedem Commit
   mit `git grep --cached` sicherstellen, dass keine Zugangsdaten enthalten sind.
 - Fertige Programme nicht ins Repository, sondern als GitHub-Release. Pakete mit `sh werkzeuge/release_pakete.sh`
-  erzeugen (Ordner `dist/`, ignoriert): Server-ZIPs für Windows/macOS, `TippTrainer-Webspace-PHP.zip`, dazu App und
+  erzeugen (Ordner `dist/`, ignoriert): Server-Pakete für Windows/macOS (ZIP) und Linux/Raspberry Pi (tar.gz), `TippTrainer-Webspace-PHP.zip`, dazu App und
   `sync.php` einzeln. Hochladen: `gh release upload <tag> dist/* --clobber` (ZIP erhält das Ausführungsrecht der macOS-Datei).
 - GitHub Pages (Branch `main`, Wurzel): https://majort0m0.github.io/TippTrainer/ – `index.html` leitet auf
   `SchreibTrainer_4.0.html` weiter. Jeder Push auf `main` aktualisiert die Online-Fassung automatisch.
