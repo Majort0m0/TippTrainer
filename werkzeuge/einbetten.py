@@ -6,6 +6,8 @@
   - Schriften      → Comic Neue (400, 700) und Andika (400), latin + latin-ext, als base64
   - html2pdf.js    → PDF-Erzeugung (Urkunde, Arbeitsblatt)
   - JSZip          → SCORM-Export (wird aus Widget-Exporten wieder entfernt)
+  - Spielhalle     → spielhalle.html (4 Arcade-Spiele für die Spiele-Belohnung) als Textblock; die App
+                     lädt sie bei Bedarf in ein Fenster (iframe). Wird aus Widget-Exporten entfernt.
 
 Die Blöcke stehen zwischen <!-- EINGEBETTET:name START … --> und <!-- EINGEBETTET:name ENDE -->
 und werden bei jedem Aufruf neu erzeugt. Nach Änderungen an der Oberfläche (neue Tailwind-Klassen)
@@ -148,6 +150,21 @@ def setze(html, name, inhalt):
     return muster.sub(lambda m: block(name, inhalt), html)
 
 
+def spielhalle_block():
+    """spielhalle.html als nicht ausgeführter Textblock (type=text/plain), zur Laufzeit per srcdoc geladen."""
+    return '<script type="text/plain" id="arcadeSource">' + script_sicher(lies(os.path.join(ORDNER, 'spielhalle.html'))) + '</script>'
+
+
+def spielhalle_marke(html):
+    """Legt die Block-Markierung für die Spielhalle einmalig hinter dem JSZip-Block an."""
+    if '<!-- EINGEBETTET:spielhalle START' in html:
+        return html
+    ende = '    <!-- EINGEBETTET:jszip ENDE -->\n'
+    if html.count(ende) != 1:
+        sys.exit('Abbruch: JSZip-Block nicht gefunden.')
+    return html.replace(ende, ende + '    ' + block('spielhalle', '') + '\n')
+
+
 def erstmalig_umstellen(html):
     """Ersetzt die CDN-Einbindungen einmalig durch (leere) Block-Markierungen."""
     if '<!-- EINGEBETTET:tailwind START' in html:
@@ -170,11 +187,12 @@ def erstmalig_umstellen(html):
 
 
 def main():
-    html = erstmalig_umstellen(lies(DATEI))
+    html = spielhalle_marke(erstmalig_umstellen(lies(DATEI)))
     print('Schriften …');     html = setze(html, 'schriften', schriften_css())
     print('Font Awesome …');  html = setze(html, 'fontawesome', fontawesome_css())
     print('html2pdf …');      html = setze(html, 'html2pdf', script_block('html2pdf', 'dist/html2pdf.bundle.min.js'))
     print('JSZip …');         html = setze(html, 'jszip', script_block('jszip', 'dist/jszip.min.js'))
+    print('Spielhalle …');    html = setze(html, 'spielhalle', spielhalle_block())
     print('Tailwind …');      html = setze(html, 'tailwind', tailwind_css(html))
 
     rest = re.findall(r'(?:src|href)="https://(?:cdn|fonts)\.[^"]+"|@import url\(', ohne_bloecke(html))

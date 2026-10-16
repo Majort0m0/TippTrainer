@@ -9,12 +9,17 @@ Zwei Varianten derselben Single-File-App (HTML + Inline-JS):
 
 ## Eingebettete Bausteine (keine CDN-Aufrufe)
 
-Tailwind (vorkompiliert), Font Awesome, Schriften, html2pdf.js und JSZip stehen als Blöcke
+Tailwind (vorkompiliert), Font Awesome, Schriften, html2pdf.js, JSZip und die Spielhalle stehen als Blöcke
 `<!-- EINGEBETTET:name START … ENDE -->` in der Datei. Nie von Hand bearbeiten, sondern
 `python3 werkzeuge/einbetten.py` ausführen (benötigt npx für Tailwind) – **nach jeder Änderung, die neue
 Tailwind-Klassen verwendet**. Keine neuen externen `<script src>`, `<link>` oder `@import` einführen.
 Externe Aufrufe zur Laufzeit gibt es nur für Übungsbilder (ARASAAC/Wikipedia); Offline-Exporte
 (`lesson.offlineImages`) betten auch diese ein. Brand-Icons (`fab`) sind nicht eingebettet.
+
+Die **Spielhalle** (`spielhalle.html`, 4 Arcade-Spiele) ist die Quelle des Blocks `spielhalle`: Änderungen dort, dann
+`einbetten.py`. Die App lädt sie nur bei Bedarf per `srcdoc` in einen iframe (`openArcade()`); die Spielhalle meldet per
+`postMessage` ihre Phasen (`Host` in `spielhalle.html`, `phase()` je Spiel). Münzregeln und 1-Minuten-Logik liegen in der
+App (Abschnitt „SPIELE-BELOHNUNG“). Im Widget-/SCORM-Export wird der Block entfernt.
 
 Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `server_bauen.sh`.
 
@@ -26,7 +31,7 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
 - Zugangsdaten und Admin-Passwort dürfen nie in einen Widget-/SCORM-Export gelangen (`buildWidgetHtml()`).
 - Nutzereingaben (Namen, Wörter, Eingaben) in HTML immer über `escHtml()` bzw. `escJsArg()` ausgeben.
 - Cloud-Sync: Drei-Wege-Abgleich (`syncMergeSnapshots`) mit Versionsschutz beim Hochladen; neue Datenfelder,
-  die Maps pro Lektion o.ä. sind, ggf. in die `deepKeys` aufnehmen. Transport: `webDavGet`/`webDavPut`,
+  die Maps pro Lektion o.ä. sind, ggf. in die `deepKeys` aufnehmen (z.B. `coinEarned`/`coinSpent` der Münzen). Transport: `webDavGet`/`webDavPut`,
   Typ `webdav` (Nextcloud, ETag) oder `server` (Header `X-TippTrainer-Key/-Version/-If-Match`).
 - Reihenfolgen nie über die Array-Reihenfolge speichern (wird beim Sync nicht abgeglichen), sondern über ein
   Feld pro Datensatz (`group.order`, `lesson.order`). Gruppen immer über `getOrderedGroups()` auflisten.
