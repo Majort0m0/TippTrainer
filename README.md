@@ -12,6 +12,7 @@ vollständig im Browser läuft. Keine Installation, keine Benutzerkonten, kein T
   - Fließtexte: Lesen mit Vorlesefunktion und Bilder-Quiz, Lückentext, Abtippen (mit Wörtern pro Minute)
 - **Korrektur:** Fehler werden genau markiert, es gibt einen zweiten Versuch, danach landet das Wort in den Lernwörtern. Die App erkennt Fehler bei Groß- und Kleinschreibung und eine eingeschaltete Feststelltaste.
 - **Hilfen:** Vorlesen und Blitzlesen, Urkunde als PDF.
+- **Papierkorb:** Gelöschte Gruppen, Profile und Lektionen bleiben 30 Tage im Papierkorb (Admin-Modus) und lassen sich wiederherstellen; er wird mit synchronisiert. Das Server-Programm hebt zusätzlich Tagessicherungen für 30 Tage auf.
 - **Spiele-Belohnung (optional, standardmäßig aus):** Pro abgeschlossener Lektion gibt es eine Münze (höchstens 3). Eine Münze öffnet die Spielhalle mit vier Arcade-Spielen (Mindestspielzeit 1 Minute). Aktivierung pro Gruppe oder Profil im Admin-Modus.
 - **Verwaltung (Admin-Modus):** Gruppen (auch mit Passwort und frei sortierbar), Profile, Lektions-Editor.
   - Bildersuche über ARASAAC (mit Grundformen/Wortstämmen) und Wikimedia, eigene Bilder hochladen

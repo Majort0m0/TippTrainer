@@ -126,7 +126,7 @@ sudo -u tipptrainer ./tipptrainer-server --passwort-setzen NEUESPASSWORT</code><
 
 <h3>Sicherung (Backup)</h3>
 <ul>
-  <li>Alle Daten liegen im Ordner <code>/opt/tipptrainer/TippTrainer-Daten</code>: <code>daten.json</code> (aktueller Stand), <code>Sicherungen/</code> (die letzten 50 Fassungen) und <code>einstellungen.json</code> (Schlüssel, Passwort).</li>
+  <li>Alle Daten liegen im Ordner <code>/opt/tipptrainer/TippTrainer-Daten</code>: <code>daten.json</code> (aktueller Stand), <code>Sicherungen/</code> (die letzten 50 Fassungen und je eine Tagessicherung der letzten 30 Tage) und <code>einstellungen.json</code> (Schlüssel, Passwort).</li>
   <li>Diesen Ordner regelmäßig auf den eigenen Rechner kopieren. Der Ordner gehört dem Dienst, deshalb zuerst auf dem Pi (per SSH) ein Archiv anlegen:
 <pre><code>sudo tar -czf ~/TippTrainer-Sicherung.tar.gz -C /opt/tipptrainer TippTrainer-Daten &amp;&amp; sudo chown $USER ~/TippTrainer-Sicherung.tar.gz</code></pre>
 und es dann auf dem eigenen Rechner abholen:
@@ -166,6 +166,7 @@ sudo sh deinstallieren.sh --mit-daten  # auch die Daten löschen</code></pre>
   <tr><td>Es ging gestern, heute nicht</td><td>Strom und Netzwerkkabel prüfen. Per SSH <code>--info</code> aufrufen: Hat der Pi eine neue Adresse bekommen? (Dauerhaft vermeiden: im Router eine feste IP für den Pi reservieren.)</td></tr>
   <tr><td>Port 8080 ist belegt (läuft noch ein anderes Programm)</td><td>Der Server weicht automatisch auf den nächsten freien Port aus (8081 …). Dann ändert sich die Adresse für die Geräte. Besser: in <code>/opt/tipptrainer/TippTrainer-Daten/einstellungen.json</code> den Wert <code>"port"</code> auf eine freie Nummer (z.&nbsp;B. 8090) setzen und <code>sudo systemctl restart tipptrainer</code> ausführen.</td></tr>
   <tr><td>Passwort vergessen</td><td>Per SSH am Pi: <code>sudo -u tipptrainer ./tipptrainer-server --passwort</code> (im Ordner <code>/opt/tipptrainer</code>).</td></tr>
+  <tr><td>Gruppe, Profil oder Lektion versehentlich gelöscht</td><td>In der App im Admin-Modus: <b>Papierkorb</b> (Gruppenübersicht, Profilauswahl oder Admin Optionen) → <i>Wiederherstellen</i>. Gelöschtes bleibt dort 30 Tage.</td></tr>
   <tr><td>Alte Fassung wiederherstellen</td><td><code>sudo systemctl stop tipptrainer</code>, gewünschte Datei aus <code>Sicherungen/</code> als <code>daten.json</code> kopieren (Besitzer <code>tipptrainer</code> beibehalten), <code>sudo systemctl start tipptrainer</code>.</td></tr>
 </table>
 

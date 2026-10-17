@@ -21,6 +21,7 @@
 $SCHLUESSEL  = 'HIER-EIGENEN-SCHLUESSEL-EINTRAGEN';
 $DATENORDNER = __DIR__ . '/tipptrainer-daten';
 $SICHERUNGEN = 50;          // so viele ältere Fassungen werden aufbewahrt
+$TAGESSICHERUNGEN = 30;     // zusätzlich eine Sicherung pro Tag (tag-JJJJ-MM-TT.json) für so viele Tage
 $MAX_GROESSE = 50 * 1024 * 1024;
 
 // ------------------------------------------------------------------------------------
@@ -101,6 +102,13 @@ if ($methode === 'PUT') {
         $liste = glob($DATENORDNER . '/Sicherungen/daten-*.json') ?: [];
         sort($liste);
         while (count($liste) > $SICHERUNGEN) @unlink(array_shift($liste));
+
+        // Tagessicherung: einmal pro Tag (Stand vor dem ersten Speichern des Tages), die letzten 30 Tage behalten
+        $tagesdatei = $DATENORDNER . '/Sicherungen/tag-' . date('Y-m-d') . '.json';
+        if (!file_exists($tagesdatei)) @file_put_contents($tagesdatei, $alt);
+        $tage = glob($DATENORDNER . '/Sicherungen/tag-*.json') ?: [];
+        sort($tage);
+        while (count($tage) > $TAGESSICHERUNGEN) @unlink(array_shift($tage));
     }
 
     $tmp = $datei . '.tmp';

@@ -33,6 +33,9 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
 - Cloud-Sync: Drei-Wege-Abgleich (`syncMergeSnapshots`) mit Versionsschutz beim Hochladen; neue Datenfelder,
   die Maps pro Lektion o.ä. sind, ggf. in die `deepKeys` aufnehmen (z.B. `coinEarned`/`coinSpent` der Münzen). Transport: `webDavGet`/`webDavPut`,
   Typ `webdav` (Nextcloud, ETag) oder `server` (Header `X-TippTrainer-Key/-Version/-If-Match`).
+- **Papierkorb:** Löschen von Gruppen/Profilen/Lektionen nie direkt (`splice`/`filter`), sondern über `moveGroupToTrash()`/
+  `moveProfileToTrash()`/`moveLessonToTrash()` (Abschnitt „PAPIERKORB“). `trash` ist eine eigene synchronisierte Sammlung im
+  Snapshot (`getLocalSnapshot`, `syncMergeSnapshots`, `writeLocalStorage`, Schlüssel `st_pro_trash`).
 - Reihenfolgen nie über die Array-Reihenfolge speichern (wird beim Sync nicht abgeglichen), sondern über ein
   Feld pro Datensatz (`group.order`, `lesson.order`). Gruppen immer über `getOrderedGroups()` auflisten.
 

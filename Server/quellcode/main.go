@@ -45,10 +45,11 @@ import (
 var embeddedApp []byte
 
 const (
-	dataDirName  = "TippTrainer-Daten"
-	dataFileName = "daten.json"
-	maxBodyBytes = 50 << 20 // 50 MB
-	keepBackups  = 50
+	dataDirName      = "TippTrainer-Daten"
+	dataFileName     = "daten.json"
+	maxBodyBytes     = 50 << 20 // 50 MB
+	keepBackups      = 50
+	keepDailyBackups = 30
 )
 
 type config struct {
@@ -254,11 +255,13 @@ func handleSync(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Ältere Fassungen aufheben (höchstens eine pro Minute, die letzten keepBackups Stück).
+// Ältere Fassungen aufheben (höchstens eine pro Minute, die letzten keepBackups Stück) und zusätzlich je Tag
+// eine Sicherung (der Stand vom Vortag-Ende = vor dem ersten Speichern des Tages) für keepDailyBackups Tage.
 func backup(current []byte) {
 	dir := filepath.Join(dataDir, "Sicherungen")
 	name := "daten-" + time.Now().Format("2006-01-02_15-04") + ".json"
 	_ = os.WriteFile(filepath.Join(dir, name), current, 0o600)
+	dailyBackup(dir, current)
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return
@@ -271,6 +274,29 @@ func backup(current []byte) {
 	}
 	sort.Strings(files)
 	for len(files) > keepBackups {
+		_ = os.Remove(filepath.Join(dir, files[0]))
+		files = files[1:]
+	}
+}
+
+// Tagessicherung: "tag-JJJJ-MM-TT.json", einmal pro Tag; die letzten keepDailyBackups Tage bleiben erhalten.
+func dailyBackup(dir string, current []byte) {
+	name := "tag-" + time.Now().Format("2006-01-02") + ".json"
+	if _, err := os.Stat(filepath.Join(dir, name)); err != nil {
+		_ = os.WriteFile(filepath.Join(dir, name), current, 0o600)
+	}
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return
+	}
+	var files []string
+	for _, e := range entries {
+		if strings.HasPrefix(e.Name(), "tag-") && strings.HasSuffix(e.Name(), ".json") {
+			files = append(files, e.Name())
+		}
+	}
+	sort.Strings(files)
+	for len(files) > keepDailyBackups {
 		_ = os.Remove(filepath.Join(dir, files[0]))
 		files = files[1:]
 	}
