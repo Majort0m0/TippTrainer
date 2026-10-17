@@ -73,7 +73,7 @@
 <h3>Admin-Passwort der App</h3>
 <ul>
   <li>Mit dem <b>Admin-Passwort</b> schalten Lehrkräfte in der App den Admin-Modus ein (Lektionen, Profile, Gruppen verwalten). Beim ersten Start gilt das Standard-Passwort <code>lernsachen</code>; das Server-Programm zeigt das aktuelle Passwort auf der <b>Info-Seite</b> an. Bitte ein eigenes festlegen – das Standard-Passwort ist öffentlich bekannt.</li>
-  <li><b>Ändern:</b> auf der Info-Seite (nur am Server-Rechner selbst erreichbar) unter „Admin-Passwort der App“ ein eigenes Passwort eintragen oder ein zufälliges erzeugen. Die Änderung gilt sofort für alle Geräte, die die App vom Server laden – beim nächsten Laden der Seite.</li>
+  <li><b>Ändern:</b> auf der Info-Seite (am Server-Rechner selbst ohne Anmeldung; von anderen Geräten im Netz unter <code>http://&lt;Adresse&gt;:8080/info</code> nach Eingabe des Admin-Passworts) unter „Admin-Passwort der App“ ein eigenes Passwort eintragen oder ein zufälliges erzeugen. Die Änderung gilt sofort für alle Geräte, die die App vom Server laden – beim nächsten Laden der Seite.</li>
   <li>Die App erhält vom Server nur einen <b>Hash</b> (keine Klartext-Weitergabe). Das ist ein Schutz gegen neugierige Kinder, kein Hochsicherheitsverfahren.</li>
   <li><b>Vergessen?</b> Passwort auf der Info-Seite ansehen oder neu setzen. Ohne Bildschirm: in einem Terminal im Programmordner <code>./tipptrainer-server --passwort</code> (anzeigen) bzw. <code>--passwort-setzen NEUESPASSWORT</code>.</li>
 </ul>
@@ -102,7 +102,7 @@
   <tr><td>Es ging gestern, heute nicht mehr</td><td>Der Rechner hat evtl. eine neue IP-Adresse bekommen. Info-Seite öffnen (<code>http://localhost:8080/info</code> auf dem Server-Rechner) und iPads neu per QR-Code verbinden. Dauerhafte Lösung: feste IP-Adresse durch die Schul-IT.</td></tr>
   <tr><td>„Der Schlüssel ist falsch“</td><td>Schlüssel von der Info-Seite verwenden (er wurde evtl. neu erzeugt).</td></tr>
   <tr><td>Oben rechts steht „Fehler!“</td><td>Server läuft nicht oder ist nicht erreichbar – die App arbeitet lokal weiter. Mit dem Sync-Knopf daneben erneut versuchen.</td></tr>
-  <tr><td>Admin-Passwort unbekannt</td><td>Info-Seite öffnen (<code>http://localhost:8080/info</code> auf dem Server-Rechner) – dort steht es und lässt sich ändern. Auf einem Raspberry Pi: <code>./tipptrainer-server --passwort</code> im Terminal.</td></tr>
+  <tr><td>Admin-Passwort unbekannt</td><td>Info-Seite am Server-Rechner öffnen (<code>http://localhost:8080/info</code>) – dort steht es und lässt sich ändern. Auf einem Raspberry Pi: <code>./tipptrainer-server --passwort</code> im Terminal.</td></tr>
   <tr><td>Port 8080 ist belegt</td><td>Das Programm nimmt automatisch den nächsten freien Port (8081 …) – die richtige Adresse steht auf der Info-Seite.</td></tr>
 </table>
 
@@ -160,6 +160,7 @@
 
 <h3>5. Hinweise</h3>
 <ul>
+  <li><b>Verbindungsdaten im Browser:</b> Die Info-Seite ist auch von anderen Geräten im Netz erreichbar: <code>http://tipptrainer.local:8080/info</code> (bzw. mit der IP-Adresse) öffnen und das <b>Admin-Passwort</b> eingeben. Dann erscheinen Link, QR-Code und das Formular zum Ändern des Passworts. Die Sitzung endet nach etwa 30 Minuten oder mit „Abmelden“; nach mehreren falschen Eingaben wird die Anmeldung kurz gesperrt. Ohne Anmeldung sieht man nichts.</li>
   <li><b>Link mit Gerätename:</b> Die Info-Seite und <code>--info</code> zeigen zusätzlich einen Link wie <code>http://tipptrainer.local:8080/#tt-server=…</code>. Richten Sie die iPads <b>mit diesem Link</b> ein, dann bleiben sie auch verbunden, wenn der Pi in ein anderes Netz kommt und eine neue IP-Adresse bekommt (Voraussetzung: das Gerät erkennt Namen mit „.local“, z.&nbsp;B. iPad und Mac). Bei Netzwechsel steht die aktuelle Adresse weiter in <code>--info</code>.</li>
   <li><b>Feste Adresse:</b> Dem Pi im Router eine feste IP-Adresse geben (DHCP-Reservierung), sonst müssen die iPads nach einer neuen Adresse neu verbunden werden. Mit dem Namen <code>tipptrainer.local</code> klappt es oft auch ohne feste IP.</li>
   <li><b>Weitere Programme auf demselben Pi:</b> Jedes Programm braucht einen eigenen Port. Der TippTrainer-Server nimmt 8080 und weicht bei Belegung <i>automatisch</i> auf den nächsten freien Port aus – dann ändert sich die Adresse für die iPads. Deshalb: den gewünschten Port fest in <code>/opt/tipptrainer/TippTrainer-Daten/einstellungen.json</code> eintragen (<code>"port": 8090</code>) und den Dienst neu starten; den Port 8080 dann nicht für andere Programme verwenden.</li>

@@ -59,6 +59,7 @@ echo
 su -s /bin/sh "$BENUTZER" -c "cd '$ZIEL' && ./tipptrainer-server --info"
 echo
 echo "Name im Netz (falls mDNS/Avahi aktiv ist):  http://$(hostname).local:8080"
+echo "Verbindungsdaten jederzeit im Browser:    http://$(hostname).local:8080/info  (Admin-Passwort eingeben)"
 echo "Später erneut anzeigen:   cd $ZIEL && sudo -u $BENUTZER ./tipptrainer-server --info"
 echo "Admin-Passwort ändern:    cd $ZIEL && sudo -u $BENUTZER ./tipptrainer-server --passwort-setzen NEUESPASSWORT"
 echo "Protokoll:                sudo journalctl -u tipptrainer -f"

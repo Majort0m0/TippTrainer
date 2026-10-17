@@ -161,7 +161,7 @@ func ensureAdminPassword() bool {
 // --- Info-Seite: Passwort ändern -------------------------------------------------------
 
 func handleAdminPasswordForm(w http.ResponseWriter, r *http.Request) {
-	if !isLocalRequest(r) || r.Method != http.MethodPost {
+	if !infoAuthorized(r) || r.Method != http.MethodPost {
 		http.NotFound(w, r)
 		return
 	}
@@ -260,6 +260,9 @@ func printInfoCLI() {
 	if u := nameConnectURL(); u != "" {
 		fmt.Printf("Link mit Gerätename:     %s\n", u)
 		fmt.Println("                         (bleibt in jedem Netz gültig, in dem Namen mit „.local“ erkannt werden)")
+	}
+	for _, u := range infoPageURLs() {
+		fmt.Printf("Info-Seite im Netz:      %s  (mit Admin-Passwort)\n", u)
 	}
 	fmt.Printf("Schlüssel:               %s\n", cfg.Key)
 	fmt.Printf("Admin-Passwort (App):    %s\n", adminPassword())

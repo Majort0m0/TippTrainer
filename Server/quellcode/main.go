@@ -103,6 +103,8 @@ func main() {
 	mux.HandleFunc("/qr.png", handleQR)
 	mux.HandleFunc("/info", handleInfo)
 	mux.HandleFunc("/info/passwort", handleAdminPasswordForm)
+	mux.HandleFunc("/info/login", handleInfoLogin)
+	mux.HandleFunc("/info/abmelden", handleInfoLogout)
 	mux.HandleFunc("/", handleApp)
 
 	printBanner(newPassword)
@@ -416,6 +418,18 @@ func nameConnectURL() string {
 	return fmt.Sprintf("http://%s:%d/#tt-server=%s", n, port, cfg.Key)
 }
 
+// Adressen der Info-Seite im Netzwerk (erst Gerätename, dann IP-Adressen)
+func infoPageURLs() []string {
+	var out []string
+	if n := localName(); n != "" {
+		out = append(out, fmt.Sprintf("http://%s:%d/info", n, port))
+	}
+	for _, ip := range lanAddresses() {
+		out = append(out, fmt.Sprintf("http://%s:%d/info", ip, port))
+	}
+	return out
+}
+
 // Adresse inkl. Schlüssel im #-Teil: wird nicht an den Server übertragen; die App liest ihn
 // beim Öffnen aus und richtet den Sync automatisch ein.
 func connectURL(ip string) string {
@@ -423,7 +437,7 @@ func connectURL(ip string) string {
 }
 
 func handleQR(w http.ResponseWriter, r *http.Request) {
-	if !isLocalRequest(r) {
+	if !infoAuthorized(r) {
 		http.NotFound(w, r)
 		return
 	}
@@ -438,7 +452,9 @@ func handleQR(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write(code.PNG())
 }
 
-// Info-Seite und QR-Code (enthalten den Schlüssel) nur auf dem Server-PC selbst anzeigen.
+// Info-Seite und QR-Code (enthalten den Schlüssel): auf dem Server-PC selbst ohne Anmeldung, im Netz nur nach
+// Eingabe des Admin-Passworts (siehe infoauth.go).
+// isLocalRequest: Anfrage kommt vom Server-Rechner selbst.
 func isLocalRequest(r *http.Request) bool {
 	ip := net.ParseIP(clientIP(r))
 	return ip != nil && ip.IsLoopback()
@@ -464,7 +480,8 @@ var infoTpl = template.Must(template.New("info").Parse(`<!doctype html>
 <div class="card">
  <h1>TippTrainer-Server</h1>
  <div class="ok">● läuft auf Port {{.Port}}</div>
- <p>Dieses Fenster nur auf dem Server-PC zeigen – der QR-Code enthält den Zugangsschlüssel.</p>
+ <p>Nur Lehrkräften zeigen – QR-Code und Link enthalten den Zugangsschlüssel.</p>
+ {{if .Remote}}<form method="post" action="/info/abmelden" class="hint">Angemeldet über das Netzwerk (die Sitzung läuft nach etwa 30 Minuten ab). <button type="submit">Abmelden</button></form>{{end}}
  {{range .Addrs}}
  <div class="addr">
   <img src="/qr.png?ip={{.IP}}" alt="QR-Code">
@@ -487,8 +504,8 @@ var infoTpl = template.Must(template.New("info").Parse(`<!doctype html>
  {{end}}
 </div>
 <div class="card">
- <b>App auf diesem PC öffnen</b> – bereits mit dem Server verbunden:<br>
- <a class="local" href="{{.LocalLink}}" target="_blank">App öffnen</a>
+ <b>App auf {{if .Remote}}diesem Gerät{{else}}diesem PC{{end}} öffnen</b> – bereits mit dem Server verbunden:<br>
+ <a class="local" href="{{.AppLink}}" target="_blank">App öffnen</a>
 </div>
 <div class="card">
  <b>Admin-Passwort der App</b>
@@ -511,7 +528,7 @@ var infoTpl = template.Must(template.New("info").Parse(`<!doctype html>
   <li>Daten liegen in: <code>{{.DataDir}}</code> (ältere Fassungen im Unterordner „Sicherungen“)</li>
   <li>Der PC muss eingeschaltet bleiben (Ruhezustand deaktivieren), solange synchronisiert werden soll. Die Geräte arbeiten sonst lokal weiter und gleichen später ab.</li>
   <li>Fragt die Firewall nach, Zugriff für <b>private Netzwerke</b> erlauben.</li>
-  <li>Beenden: Konsolenfenster schließen.</li>
+  <li>Beenden: Konsolenfenster schließen (auf Linux/Raspberry Pi läuft der Server als Dienst: <code>sudo systemctl stop tipptrainer</code>).</li>
  </ul>
 </div>
 <script>
@@ -531,9 +548,14 @@ function copyLink(btn) {
 </body></html>`))
 
 func handleInfo(w http.ResponseWriter, r *http.Request) {
-	if !isLocalRequest(r) {
-		http.NotFound(w, r)
+	if !infoAuthorized(r) {
+		showInfoLogin(w, r)
 		return
+	}
+	remote := !isLocalRequest(r)
+	appLink := fmt.Sprintf("http://localhost:%d/#tt-server=%s", port, cfg.Key)
+	if remote {
+		appLink = fmt.Sprintf("http://%s/#tt-server=%s", r.Host, cfg.Key)
 	}
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	type addr struct{ IP, Link string }
@@ -546,7 +568,7 @@ func handleInfo(w http.ResponseWriter, r *http.Request) {
 		"AdminPassword": adminPassword(), "AdminIsDefault": adminPasswordIsDefault(), "Token": infoToken, "NameLink": nameConnectURL(),
 		"Saved": q.Get("gespeichert") != "", "Failed": q.Get("fehler") != "", "MinLen": adminMinLength,
 		"Port": port, "Addrs": addrs, "Key": cfg.Key, "DataDir": dataDir,
-		"LocalLink": fmt.Sprintf("http://localhost:%d/#tt-server=%s", port, cfg.Key),
+		"AppLink": appLink, "Remote": remote,
 	})
 }
 
@@ -568,6 +590,9 @@ func printBanner(newPassword bool) {
 	}
 	fmt.Printf("  Daten:                   %s\n", dataDir)
 	fmt.Printf("  QR-Codes & Hilfe:        http://localhost:%d/info\n", port)
+	for _, u := range infoPageURLs() {
+		fmt.Printf("  Info-Seite im Netz:      %s  (Admin-Passwort nötig)\n", u)
+	}
 	fmt.Println("==============================================================")
 	if f := findAppFile(); f != "" {
 		fmt.Printf("  App-Datei: %s\n", filepath.Base(f))

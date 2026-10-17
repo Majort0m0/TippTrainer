@@ -48,6 +48,8 @@ Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `ser
   `appSettings.adminHash`/`adminRecovery`, per Sync abgeglichen). Das Hash-Verfahren in `adminKdf()` (App) und
   `adminHash()` (`admin.go`) muss identisch bleiben; eigene SHA-256-Berechnung, weil WebCrypto über http:// fehlt.
   In der Standardversion ist `ADMIN_PASSWORD` leer (`""`) – `pns_erzeugen.py` setzt dort den PNS-Wert ein.
+- Info-Seite `/info` (Schlüssel, QR-Code): lokal ohne Anmeldung, im Netz nur mit Admin-Passwort (Sitzungs-Cookie, Sperre bei
+  Fehlversuchen, `infoauth.go`); `/qr.png` und `/info/passwort` folgen derselben Regel (`infoAuthorized`).
 - Linux/Raspberry Pi: `Server/linux/` (Dienst-Datei, `installieren.sh`, `deinstallieren.sh`); Server-Parameter
   `--info`, `--passwort`, `--passwort-setzen`, `--passwort-neu`, `--hilfe` für Rechner ohne Bildschirm.
 - Programme (Windows, macOS, Linux x64/arm64/arm32) neu bauen (bettet die aktuelle Standardversion als Rückfall ein):

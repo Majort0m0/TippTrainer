@@ -85,13 +85,14 @@ cd TippTrainer-Server &amp;&amp; sudo sh installieren.sh</code></pre>
   <li>das <b>Admin-Passwort der App</b> (zunächst <code>lernsachen</code>)</li>
   <li>einen <b>QR-Code</b> im Terminal</li>
 </ul>
+<div class="box ok"><b>Verbindungsdaten jederzeit im Browser:</b> <code>http://tipptrainer.local:8080/info</code> auf einem beliebigen Gerät im Netz öffnen und das <b>Admin-Passwort</b> eingeben – dann erscheinen der <b>Link</b> und der <b>QR-Code</b> für die Geräte (und das Formular zum Ändern des Passworts). Ohne Passwort ist nichts zu sehen.</div>
 <div class="box warn"><b>Wichtig:</b> Das Standard-Passwort <code>lernsachen</code> steht öffentlich im Quellcode. Bitte ändern Sie es (siehe Abschnitt „Laufende Nutzung“) – oder lassen Sie es bewusst, wenn ein niedriges Sicherheitsniveau für Ihre Klasse genügt.</div>
 
 <h2><span class="step">4</span>Geräte verbinden</h2>
 <h3>iPad / Tablet (einmal pro Gerät)</h3>
 <ol>
   <li>Das Gerät muss im <b>selben Netz</b> (WLAN) wie der Pi sein.</li>
-  <li>In <b>Safari</b> den <b>Link mit Gerätename</b> öffnen, z.&nbsp;B.<br><code>http://tipptrainer.local:8080/#tt-server=SCHLÜSSEL</code><br>Den Link bekommen Sie am einfachsten per AirDrop, E-Mail oder Messenger auf das Gerät – oder Sie scannen den <b>QR-Code</b> aus dem Terminal mit der Kamera.</li>
+  <li>In <b>Safari</b> den <b>Link mit Gerätename</b> öffnen, z.&nbsp;B.<br><code>http://tipptrainer.local:8080/#tt-server=SCHLÜSSEL</code><br>Am einfachsten: auf einem anderen Gerät (z.&nbsp;B. dem Lehrer-PC) <code>http://tipptrainer.local:8080/info</code> öffnen, das Admin-Passwort eingeben und den <b>QR-Code</b> mit der Kamera des iPads scannen. Der Link lässt sich dort auch kopieren und per AirDrop, E-Mail oder Messenger verschicken. (Alternativ zeigt das Terminal denselben QR-Code mit <code>--info</code>.)</li>
   <li>Die App öffnet sich und ist <b>automatisch mit dem Server verbunden</b>. Die Datenspeicherung läuft jetzt über den Pi.</li>
   <li>Praktisch: in Safari auf <i>Teilen → Zum Home-Bildschirm</i> tippen. Dann startet die App wie ein normales Symbol.</li>
 </ol>
@@ -113,7 +114,8 @@ cd TippTrainer-Server &amp;&amp; sudo sh installieren.sh</code></pre>
 </ul>
 
 <h3>Verbindungsdaten und Passwort ansehen oder ändern</h3>
-<p>Per SSH am Pi anmelden (Schritt&nbsp;2) und dann:</p>
+<p><b>Im Browser:</b> <code>http://tipptrainer.local:8080/info</code> öffnen, Admin-Passwort eingeben – dort stehen Link, QR-Code, Schlüssel und das Formular zum Ändern des Passworts. Die Sitzung dauert etwa 30 Minuten (oder bis „Abmelden“); nach mehreren falschen Eingaben ist die Anmeldung kurz gesperrt.</p>
+<p><b>Per Terminal</b> (z.&nbsp;B. bei vergessenem Passwort): per SSH am Pi anmelden (Schritt&nbsp;2) und dann:</p>
 <pre><code># Adresse, Links, Schlüssel, Passwort und QR-Code anzeigen
 cd /opt/tipptrainer &amp;&amp; sudo -u tipptrainer ./tipptrainer-server --info
 
@@ -153,7 +155,7 @@ sudo sh deinstallieren.sh --mit-daten  # auch die Daten löschen</code></pre>
 <ol>
   <li><b>Am besten per Netzwerkkabel anschließen.</b> Dann braucht der Pi keine Einrichtung.</li>
   <li><b>Neues WLAN:</b> Pi erst per Kabel (oder mit Monitor und Tastatur) erreichbar machen, dann:<br><code>sudo nmcli device wifi connect "NETZNAME" password "WLAN-PASSWORT"</code><br>(Alternativ <code>sudo nmtui</code> für ein Menü.)</li>
-  <li>Pi finden: <code>tipptrainer.local</code> funktioniert meist auch im neuen Netz. Sonst die IP in der Geräteliste des Routers suchen.</li>
+  <li>Pi finden: <code>tipptrainer.local</code> funktioniert meist auch im neuen Netz. Sonst die IP in der Geräteliste des Routers suchen. Mit <code>http://tipptrainer.local:8080/info</code> (bzw. <code>http://IP:8080/info</code>) und dem Admin-Passwort sehen Sie sofort Link und QR-Code.</li>
   <li>Geräte, die mit dem <b>Namens-Link</b> eingerichtet wurden, finden den Pi von selbst. Wurde mit einer IP-Adresse eingerichtet, tragen Sie die neue Adresse in der App ein (Speicher-Symbol → Eigener Server) oder verbinden das Gerät erneut über den Link aus <code>--info</code>.</li>
 </ol>
 
@@ -163,7 +165,7 @@ sudo sh deinstallieren.sh --mit-daten  # auch die Daten löschen</code></pre>
   <tr><td>„Server nicht erreichbar“ in der App</td><td>Sind Gerät und Pi im <b>selben Netz</b>? (Viele Schul-WLANs trennen Geräte untereinander – Rückfrage bei der Schul-IT.) Läuft der Dienst (<code>sudo systemctl status tipptrainer</code>)? Probeweise die <b>IP-Adresse</b> statt des Namens eintragen: Klappt das, löst das Gerät den Namen <code>….local</code> nicht auf, oder der Router kennt noch eine <b>veraltete Adresse</b> für den Pi (alten Eintrag im Router löschen, dem Pi eine feste IP geben).</td></tr>
   <tr><td>Die App wurde geöffnet, aber „Verbinden“ scheitert</td><td>Die App muss <b>vom Pi</b> geöffnet werden (<code>http://tipptrainer.local:8080</code>). Von einer https-Seite (z.&nbsp;B. der Online-Fassung auf GitHub Pages) blockiert der Browser die Verbindung zum Pi. Am Mac: <i>Systemeinstellungen → Datenschutz &amp; Sicherheit → Lokales Netzwerk</i> muss für den Browser erlaubt sein.</td></tr>
   <tr><td><code>ssh</code> findet <code>tipptrainer.local</code> nicht</td><td>Pi und Rechner im selben Netz? Etwas warten (nach dem Einschalten dauert es ca. 1–2 Minuten). Sonst IP aus der Router-Geräteliste verwenden.</td></tr>
-  <tr><td>Es ging gestern, heute nicht</td><td>Strom und Netzwerkkabel prüfen. Per SSH <code>--info</code> aufrufen: Hat der Pi eine neue Adresse bekommen? (Dauerhaft vermeiden: im Router eine feste IP für den Pi reservieren.)</td></tr>
+  <tr><td>Es ging gestern, heute nicht</td><td>Strom und Netzwerkkabel prüfen. Auf <code>/info</code> (siehe oben) oder per SSH mit <code>--info</code> nachsehen: Hat der Pi eine neue Adresse bekommen? (Dauerhaft vermeiden: im Router eine feste IP für den Pi reservieren.)</td></tr>
   <tr><td>Port 8080 ist belegt (läuft noch ein anderes Programm)</td><td>Der Server weicht automatisch auf den nächsten freien Port aus (8081 …). Dann ändert sich die Adresse für die Geräte. Besser: in <code>/opt/tipptrainer/TippTrainer-Daten/einstellungen.json</code> den Wert <code>"port"</code> auf eine freie Nummer (z.&nbsp;B. 8090) setzen und <code>sudo systemctl restart tipptrainer</code> ausführen.</td></tr>
   <tr><td>Passwort vergessen</td><td>Per SSH am Pi: <code>sudo -u tipptrainer ./tipptrainer-server --passwort</code> (im Ordner <code>/opt/tipptrainer</code>).</td></tr>
   <tr><td>Gruppe, Profil oder Lektion versehentlich gelöscht</td><td>In der App im Admin-Modus: <b>Papierkorb</b> (Gruppenübersicht, Profilauswahl oder Admin Optionen) → <i>Wiederherstellen</i>. Gelöschtes bleibt dort 30 Tage.</td></tr>

@@ -13941,7 +13941,7 @@ if ($request_method = 'OPTIONS') { return 204; }</pre>
             if (mode === 'fixed') {
                 html += '<p class="text-xs text-gray-500">In dieser Fassung ist das Passwort fest eingebaut.</p>';
             } else if (mode === 'server') {
-                html += '<p class="text-xs text-gray-500">Das Passwort wird vom Server-Programm verwaltet. Ändern lässt es sich auf dessen Info-Seite (auf dem Server-Rechner) oder per Kommandozeile mit <code>--passwort-setzen</code>.</p>';
+                html += '<p class="text-xs text-gray-500">Das Passwort wird vom Server-Programm verwaltet. Ändern lässt es sich auf dessen Info-Seite (<code>/info</code> auf dem Server, im Netz mit dem Admin-Passwort) oder per Kommandozeile mit <code>--passwort-setzen</code>.</p>';
             } else {
                 html += `<div class="flex flex-wrap gap-2">
                     <button onclick="openAdminSetup('change')" class="px-3 py-1.5 bg-orange-100 text-orange-800 rounded-lg text-xs font-bold hover:bg-orange-200">Passwort ändern</button>
