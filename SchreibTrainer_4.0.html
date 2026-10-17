@@ -18959,7 +18959,7 @@ function finishSession() {
                 () => openArcade({ profileId: p.id }));
         }
 
-        const arcade = { active: false, free: false, profileId: null, spent: false, secs: 0, hadPlay: false, ending: false, phase: '', endTimer: null };
+        const arcade = { fromSummary: false, active: false, free: false, profileId: null, spent: false, secs: 0, hadPlay: false, ending: false, phase: '', endTimer: null };
 
         // Ton der Spielhalle: Der Audio-Kontext wird hier — direkt im Klick, der die Spielhalle öffnet — angelegt
         // und von der Spielhalle mitbenutzt (window.__ttArcadeAudio). Das umgeht die strengen Ton-Regeln von
@@ -19006,7 +19006,10 @@ function finishSession() {
             const html = arcadeSource();
             if (!html) { myAlert('Die Spielhalle ist in dieser Fassung nicht enthalten.'); return; }
             if (arcade.endTimer) clearTimeout(arcade.endTimer);
-            Object.assign(arcade, { active: true, free: !!opts.free, profileId: opts.profileId || null, spent: false, secs: 0, hadPlay: false, ending: false, phase: '', endTimer: null });
+            // Wurde die Spielhalle vom Lektions-Endscreen aus geöffnet, geht es danach zurück ins Profil
+            // (der Endscreen zeigt sonst weiter die bereits eingelöste Münze)
+            const fromSummary = !document.getElementById('summaryView').classList.contains('hidden');
+            Object.assign(arcade, { fromSummary, active: true, free: !!opts.free, profileId: opts.profileId || null, spent: false, secs: 0, hadPlay: false, ending: false, phase: '', endTimer: null });
             document.getElementById('arcadeEnd').classList.add('hidden');
             updateArcadeStatus();
             document.getElementById('arcadeOverlay').classList.remove('hidden');
@@ -19024,6 +19027,10 @@ function finishSession() {
             stopArcadeAudio();                 // beendet jeden Ton
             document.getElementById('arcadeOverlay').classList.add('hidden');
             document.getElementById('arcadeEnd').classList.add('hidden');
+            if (arcade.fromSummary) {
+                arcade.fromSummary = false;
+                showView('dashboard');
+            }
             renderGameRewardBar();
         }
 
