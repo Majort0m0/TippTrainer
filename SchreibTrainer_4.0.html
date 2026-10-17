@@ -12858,6 +12858,10 @@ if ($request_method = 'OPTIONS') { return 204; }</pre>
         let lessons = [];
         let appSettings = { allowUserCreateProfile: false };
         let trash = [];   // Papierkorb (siehe Abschnitt PAPIERKORB)
+        // Diese Konstanten werden schon beim Start (init() → purgeExpiredTrash) gebraucht und müssen daher VOR bootApp()
+        // definiert sein (const ist vor seiner Zeile nicht nutzbar).
+        const TRASH_DAYS = 30;
+        const TRASH_MAX_BYTES = 3 * 1024 * 1024;   // Obergrenze (localStorage ist knapp): ältere Einträge fallen zuerst heraus
 
         let currentGroupId = null;
         let currentProfileId = null;
@@ -18635,9 +18639,7 @@ function finishSession() {
         // "trash" im Snapshot, Abgleich wie bei Lektionen), damit er auf allen Geräten gleich ist.
         // Eintrag: { id, kind: 'group'|'profile'|'lesson', name, deletedAt, groupId?, groupName?, profileId?, profileName?,
         //            copy?, payload: { groups: [], profiles: [], lessons: [] } }
-        const TRASH_DAYS = 30;
-        const TRASH_MAX_BYTES = 3 * 1024 * 1024;   // Obergrenze (localStorage ist knapp): ältere Einträge fallen zuerst heraus
-        const trashClone = x => JSON.parse(JSON.stringify(x));
+        function trashClone(x) { return JSON.parse(JSON.stringify(x)); }
 
         function purgeExpiredTrash() {
             const limit = Date.now() - TRASH_DAYS * 86400000;

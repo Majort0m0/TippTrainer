@@ -21,6 +21,11 @@ Die **Spielhalle** (`spielhalle.html`, 4 Arcade-Spiele) ist die Quelle des Block
 `postMessage` ihre Phasen (`Host` in `spielhalle.html`, `phase()` je Spiel). Münzregeln und 1-Minuten-Logik liegen in der
 App (Abschnitt „SPIELE-BELOHNUNG“). Im Widget-/SCORM-Export wird der Block entfernt.
 
+**Start-Falle:** `bootApp()` ruft `init()` beim Laden sofort auf (wenn der Datenschutzhinweis schon bestätigt ist oder die App vom
+Server kommt). Alles, was `init()` benutzt, muss vorher definiert sein – `const`/`let` weiter unten im Skript sind dann noch
+nicht nutzbar (Fehler „Cannot access … before initialization“, leere Gruppenübersicht). Nach Änderungen die App deshalb mit
+bereits bestätigtem Datenschutzhinweis **neu laden** und Konsole und Gruppenliste prüfen, nicht nur Funktionen von Hand aufrufen.
+
 Reihenfolge nach Änderungen: `einbetten.py` → `pns_erzeugen.py` → ggf. `server_bauen.sh`.
 
 ## Regeln
