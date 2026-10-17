@@ -368,6 +368,28 @@ func lanAddresses() []string {
 	return out
 }
 
+// Geräte-Name im Netz ("<rechnername>.local", per mDNS/Bonjour/Avahi): bleibt gültig, auch wenn der Rechner in
+// einem anderen Netz eine neue IP-Adresse bekommt. Leer, wenn der Rechnername dafür nicht taugt.
+func localName() string {
+	h, err := os.Hostname()
+	if err != nil {
+		return ""
+	}
+	h = strings.ToLower(strings.SplitN(h, ".", 2)[0])
+	if h == "" || strings.ContainsAny(h, " _") {
+		return ""
+	}
+	return h + ".local"
+}
+
+func nameConnectURL() string {
+	n := localName()
+	if n == "" {
+		return ""
+	}
+	return fmt.Sprintf("http://%s:%d/#tt-server=%s", n, port, cfg.Key)
+}
+
 // Adresse inkl. Schlüssel im #-Teil: wird nicht an den Server übertragen; die App liest ihn
 // beim Öffnen aus und richtet den Sync automatisch ein.
 func connectURL(ip string) string {
@@ -431,6 +453,12 @@ var infoTpl = template.Must(template.New("info").Parse(`<!doctype html>
  {{else}}
  <p class="warn">Keine Netzwerkverbindung gefunden. Ist der PC mit dem (Schul-)Netz verbunden?</p>
  {{end}}
+ {{if .NameLink}}
+ <div style="margin-top:14px;border-top:1px solid #e2e8f0;padding-top:12px">
+  <div><b>Mit dem Gerätenamen verbinden</b> – bleibt gültig, auch wenn der Server in ein anderes Netz kommt (solange dort Namen mit „.local“ erkannt werden, z.&nbsp;B. auf iPad und Mac):</div>
+  <div class="link"><a href="{{.NameLink}}" target="_blank">{{.NameLink}}</a> <button type="button" data-link="{{.NameLink}}" onclick="copyLink(this)">Link kopieren</button></div>
+ </div>
+ {{end}}
 </div>
 <div class="card">
  <b>App auf diesem PC öffnen</b> – bereits mit dem Server verbunden:<br>
@@ -440,6 +468,7 @@ var infoTpl = template.Must(template.New("info").Parse(`<!doctype html>
  <b>Admin-Passwort der App</b>
  {{if .Saved}}<div class="ok">Gespeichert – gilt ab dem nächsten Laden der App.</div>{{end}}
  {{if .Failed}}<div class="warn">Das Passwort muss mindestens {{.MinLen}} Zeichen lang sein.</div>{{end}}
+ {{if .AdminIsDefault}}<div class="warn">Es gilt noch das Standard-Passwort (im Quellcode des Programms öffentlich lesbar) – bitte ein eigenes festlegen.</div>{{end}}
  <p>Mit diesem Passwort schalten Lehrkräfte in der App den Admin-Modus ein. Es gilt für alle Geräte, die diese App vom Server laden.</p>
  <div class="big" style="font-size:22px">{{.AdminPassword}}</div>
  <form method="post" action="/info/passwort" style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
@@ -488,7 +517,7 @@ func handleInfo(w http.ResponseWriter, r *http.Request) {
 	}
 	q := r.URL.Query()
 	_ = infoTpl.Execute(w, map[string]any{
-		"AdminPassword": adminPassword(), "Token": infoToken,
+		"AdminPassword": adminPassword(), "AdminIsDefault": adminPasswordIsDefault(), "Token": infoToken, "NameLink": nameConnectURL(),
 		"Saved": q.Get("gespeichert") != "", "Failed": q.Get("fehler") != "", "MinLen": adminMinLength,
 		"Port": port, "Addrs": addrs, "Key": cfg.Key, "DataDir": dataDir,
 		"LocalLink": fmt.Sprintf("http://localhost:%d/#tt-server=%s", port, cfg.Key),
@@ -503,10 +532,13 @@ func printBanner(newPassword bool) {
 		fmt.Printf("  Adresse für die Geräte:  http://%s:%d\n", ip, port)
 		fmt.Printf("  Link inkl. Schlüssel:    %s\n", connectURL(ip))
 	}
+	if u := nameConnectURL(); u != "" {
+		fmt.Printf("  Link mit Gerätename:     %s\n", u)
+	}
 	fmt.Printf("  Schlüssel:               %s\n", cfg.Key)
 	fmt.Printf("  Admin-Passwort der App:  %s\n", adminPassword())
 	if newPassword {
-		fmt.Println("  (neu erzeugt – änderbar auf der Info-Seite oder mit:  --passwort-setzen NEU)")
+		fmt.Println("  (Standard-Passwort – änderbar auf der Info-Seite oder mit:  --passwort-setzen NEU)")
 	}
 	fmt.Printf("  Daten:                   %s\n", dataDir)
 	fmt.Printf("  QR-Codes & Hilfe:        http://localhost:%d/info\n", port)

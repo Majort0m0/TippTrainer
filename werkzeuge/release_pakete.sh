@@ -15,7 +15,7 @@ rm -rf dist && mkdir -p dist/tmp
 paket_server() { # $1 = Name im ZIP, $2 = Programmdatei
     rm -rf dist/tmp/* && mkdir -p dist/tmp/TippTrainer-Server
     cp "Server/$2" SchreibTrainer_4.0.html Server/Anleitung.html dist/tmp/TippTrainer-Server/
-    (cd dist/tmp && zip -qry "$ROOT/dist/$1" TippTrainer-Server)
+    (cd dist/tmp && zip -qryX "$ROOT/dist/$1" TippTrainer-Server)
 }
 paket_server TippTrainer-Server-Windows.zip TippTrainer-Server-Windows.exe
 paket_server TippTrainer-Server-macOS.zip TippTrainer-Server-macOS
@@ -23,9 +23,10 @@ paket_server TippTrainer-Server-macOS.zip TippTrainer-Server-macOS
 paket_linux() { # $1 = Name des Pakets, $2 = Programmdatei (Server/…)
     rm -rf dist/tmp/* && mkdir -p dist/tmp/TippTrainer-Server
     cp "Server/$2" dist/tmp/TippTrainer-Server/tipptrainer-server
-    cp SchreibTrainer_4.0.html Server/Anleitung.html Server/linux/tipptrainer.service Server/linux/installieren.sh Server/linux/deinstallieren.sh dist/tmp/TippTrainer-Server/
+    cp SchreibTrainer_4.0.html Server/Anleitung.html Server/Raspberry-Pi-Anleitung.html Server/linux/tipptrainer.service Server/linux/installieren.sh Server/linux/deinstallieren.sh dist/tmp/TippTrainer-Server/
     chmod 755 dist/tmp/TippTrainer-Server/tipptrainer-server
-    (cd dist/tmp && tar -czf "$ROOT/dist/$1" TippTrainer-Server)
+    # ohne macOS-Metadaten (Quarantäne-Flags u. Ä.), sonst meldet tar unter Linux Warnungen
+    (cd dist/tmp && COPYFILE_DISABLE=1 tar --no-xattrs --no-mac-metadata -czf "$ROOT/dist/$1" TippTrainer-Server 2>/dev/null || COPYFILE_DISABLE=1 tar -czf "$ROOT/dist/$1" TippTrainer-Server)
 }
 paket_linux TippTrainer-Server-Linux-x64.tar.gz TippTrainer-Server-Linux-x64
 paket_linux TippTrainer-Server-RaspberryPi-64bit.tar.gz TippTrainer-Server-Linux-arm64
@@ -36,5 +37,5 @@ cp SchreibTrainer_4.0.html index.html Server/sync.php Server/Anleitung.html dist
 (cd dist/tmp && zip -qr "$ROOT/dist/TippTrainer-Webspace-PHP.zip" tipptrainer)
 
 rm -rf dist/tmp
-cp SchreibTrainer_4.0.html Server/sync.php dist/
+cp SchreibTrainer_4.0.html Server/sync.php Server/Raspberry-Pi-Anleitung.html dist/
 ls -l dist

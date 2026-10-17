@@ -36,7 +36,9 @@ Unter [Releases](../../releases) gibt es fertige Pakete:
 - **TippTrainer-Server-Linux-x64.tar.gz**, **TippTrainer-Server-RaspberryPi-64bit.tar.gz** und **-32bit.tar.gz**: dasselbe Programm für Linux und den Raspberry Pi, als Dienst mit Installationsskript (`sudo sh installieren.sh`), auch ohne Bildschirm bedienbar (`--info`, `--passwort`).
 - **TippTrainer-Webspace-PHP.zip**: Ordner `tipptrainer` mit App, Startseite, `sync.php` und Anleitung für einen Webspace oder ein NAS mit PHP. Schlüssel in `sync.php` eintragen, den Ordner hochladen und `https://ihre-domain.de/tipptrainer/` öffnen.
 
-**Admin-Passwort:** Das Server-Programm erzeugt beim ersten Start ein Admin-Passwort für die App, zeigt es auf der Info-Seite bzw. per Kommandozeile an und liefert der App nur einen Hash. Ohne Server-Programm (Einzel-Datei, Nextcloud, `sync.php`) legt die Lehrkraft beim ersten Admin-Zugriff ein eigenes Passwort fest (mit Notfall-Code); die PNS-Variante behält ihr festes Passwort.
+**Admin-Passwort:** Das Server-Programm setzt beim ersten Start das Standard-Passwort `lernsachen` für die App (änderbar), zeigt das Passwort auf der Info-Seite bzw. per Kommandozeile an und liefert der App nur einen Hash. Ohne Server-Programm (Einzel-Datei, Nextcloud, `sync.php`) legt die Lehrkraft beim ersten Admin-Zugriff ein eigenes Passwort fest (mit Notfall-Code); die PNS-Variante behält ihr festes Passwort.
+
+Für den Raspberry Pi gibt es eine eigene Schritt-für-Schritt-Anleitung: [`Server/Raspberry-Pi-Anleitung.html`](Server/Raspberry-Pi-Anleitung.html) (Installation, Inbetriebnahme, Alltag, Netzwechsel, Fehlersuche).
 
 Die Anleitung für Lehrkräfte steht in [`Server/Anleitung.html`](Server/Anleitung.html).
 

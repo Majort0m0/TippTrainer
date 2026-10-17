@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TippTrainer auf dem Raspberry Pi – Schritt für Schritt</title>
+<style>
+  :root { --text:#1e293b; --muted:#64748b; --bg:#f8fafc; --card:#fff; --line:#e2e8f0; --accent:#2563eb; --warn-bg:#fff7ed; --warn:#9a3412; --ok-bg:#f0fdf4; --ok:#166534; --code-bg:#0f172a; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); background: var(--bg); margin: 0; padding: 24px 16px; line-height: 1.6; }
+  main { max-width: 820px; margin: 0 auto; }
+  h1 { font-size: 28px; margin: 0 0 4px; }
+  h2 { font-size: 21px; margin: 36px 0 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+  h3 { font-size: 16px; margin: 20px 0 6px; }
+  p.lead { color: var(--muted); margin-top: 0; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px 20px; margin: 12px 0; }
+  .box { border-radius: 10px; padding: 10px 14px; margin: 12px 0; }
+  .warn { background: var(--warn-bg); color: var(--warn); }
+  .ok { background: var(--ok-bg); color: var(--ok); }
+  code { background: #f1f5f9; padding: 1px 6px; border-radius: 5px; font-size: 0.95em; word-break: break-word; }
+  pre { background: var(--code-bg); color: #e2e8f0; padding: 12px 14px; border-radius: 10px; overflow-x: auto; font-size: 14px; line-height: 1.5; margin: 8px 0 12px; }
+  pre code { background: none; padding: 0; color: inherit; }
+  table { border-collapse: collapse; width: 100%; font-size: 15px; }
+  th, td { text-align: left; padding: 8px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  li { margin: 5px 0; }
+  .step { display: inline-block; background: var(--accent); color: #fff; border-radius: 999px; padding: 1px 12px; font-weight: 700; margin-right: 8px; font-size: 15px; }
+  @media print { body { background: #fff; } .card, pre { break-inside: avoid; } }
+</style>
+</head>
+<body>
+<main>
+<h1>TippTrainer auf dem Raspberry Pi</h1>
+<p class="lead">Ein kleiner, stromsparender Server für das Schulnetz: Alle Geräte einer Klasse (z.&nbsp;B. iPads) arbeiten mit demselben Datenstand. Der Pi läuft im Hintergrund, startet beim Einschalten von selbst und braucht weder Bildschirm noch Tastatur.</p>
+
+<div class="card">
+<b>Was Sie brauchen</b>
+<ul>
+  <li>einen <b>Raspberry Pi</b> (empfohlen: Pi 4 oder Pi 5; getestet auf Pi 5) mit Netzteil</li>
+  <li>eine <b>microSD-Karte</b> (mind. 16&nbsp;GB, am besten Klasse A2) – für Dauerbetrieb noch besser eine SSD</li>
+  <li>möglichst ein <b>Netzwerkkabel</b> zum Router/Switch (WLAN geht auch)</li>
+  <li>einen Rechner (Windows, Mac oder Linux) zum Einrichten</li>
+</ul>
+<p>Eine Internetverbindung braucht der Pi nur für die Einrichtung (Betriebssystem und Programm laden). Im Betrieb genügt das Schulnetz – nur die Übungsbilder (ARASAAC/Wikimedia) kommen aus dem Internet.</p>
+</div>
+
+<h2><span class="step">1</span>Betriebssystem auf die SD-Karte schreiben</h2>
+<ol>
+  <li>Auf dem Rechner den kostenlosen <b>Raspberry Pi Imager</b> von <code>raspberrypi.com/software</code> installieren und starten.</li>
+  <li><b>Gerät:</b> Ihr Raspberry-Pi-Modell wählen.</li>
+  <li><b>Betriebssystem:</b> <i>Raspberry Pi OS (other)</i> → <b>Raspberry Pi OS Lite (64-bit)</b>. („Lite“ hat keine Bildschirmoberfläche und ist genau richtig.)</li>
+  <li><b>Speicher:</b> die SD-Karte wählen.</li>
+  <li>Auf <b>„Weiter“</b> klicken und die <b>Einstellungen bearbeiten</b> (je nach Imager-Version heißt dieser Schritt „Einstellungen“ oder „Anpassung“). Hier ist alles wichtig, weil der Pi später ohne Bildschirm läuft:
+    <ul>
+      <li><b>Hostname:</b> z.&nbsp;B. <code>tipptrainer</code> (der Pi ist dann im Netz unter <code>tipptrainer.local</code> erreichbar – merken Sie sich den Namen)</li>
+      <li><b>Benutzername und Passwort</b> festlegen (notieren!)</li>
+      <li><b>WLAN</b> eintragen (nur, wenn kein Kabel benutzt wird) und das <b>Land</b> einstellen</li>
+      <li>Reiter <b>Dienste</b>: <b>SSH aktivieren</b> (Passwort-Anmeldung)</li>
+    </ul>
+  </li>
+  <li>Speichern, „Ja“ zum Schreiben – das dauert einige Minuten. Die SD-Karte in den Pi stecken, Netzwerkkabel anschließen und den Pi einschalten.</li>
+</ol>
+<div class="box ok">Nach etwa ein bis zwei Minuten ist der Pi bereit. Beim ersten Start richtet er sich selbst ein und startet eventuell einmal neu.</div>
+
+<h2><span class="step">2</span>Am Pi anmelden</h2>
+<p>Auf dem Rechner ein Terminal öffnen (Mac: <i>Terminal</i>; Windows&nbsp;10/11: <i>PowerShell</i>) und anmelden – mit Ihrem Benutzernamen und dem Hostnamen aus Schritt&nbsp;1:</p>
+<pre><code>ssh BENUTZER@tipptrainer.local</code></pre>
+<ul>
+  <li>Beim ersten Mal fragt das Terminal, ob dem Gerät vertraut wird: <code>yes</code> eintippen.</li>
+  <li>Dann das Passwort eingeben. Beim Tippen erscheinen <b>keine Zeichen</b> – das ist normal.</li>
+  <li>Klappt der Name nicht, die IP-Adresse des Pi in der Geräteliste des Routers (Fritz!Box: <i>Heimnetz → Netzwerk</i>) nachsehen und <code>ssh BENUTZER@192.168.x.x</code> verwenden.</li>
+</ul>
+
+<h2><span class="step">3</span>TippTrainer-Server installieren</h2>
+<p>Im Terminal auf dem Pi diese drei Befehle nacheinander eingeben (der erste lädt das Paket von GitHub):</p>
+<pre><code>curl -L -O https://github.com/Majort0m0/TippTrainer/releases/latest/download/TippTrainer-Server-RaspberryPi-64bit.tar.gz
+tar -xzf TippTrainer-Server-RaspberryPi-64bit.tar.gz
+cd TippTrainer-Server &amp;&amp; sudo sh installieren.sh</code></pre>
+<ul>
+  <li>Hat der Pi kein Internet? Dann das Paket <code>TippTrainer-Server-RaspberryPi-64bit.tar.gz</code> auf dem Rechner herunterladen und mit <code>scp TippTrainer-Server-RaspberryPi-64bit.tar.gz BENUTZER@tipptrainer.local:</code> auf den Pi kopieren; danach die Befehle 2 und 3 ausführen.</li>
+  <li>Läuft ein Pi mit <b>32-Bit-System</b> (<code>uname -m</code> zeigt <code>armv7l</code>)? Dann stattdessen das Paket <code>…RaspberryPi-32bit.tar.gz</code> nehmen.</li>
+</ul>
+<p>Das Skript richtet alles ein: einen eigenen Benutzer für das Programm, den Dienst <code>tipptrainer</code> (startet bei jedem Einschalten automatisch) und legt die Daten unter <code>/opt/tipptrainer</code> ab. Am Ende zeigt es die <b>Verbindungsdaten</b> an:</p>
+<ul>
+  <li><b>Adresse</b> (z.&nbsp;B. <code>http://192.168.188.86:8080</code>) und den <b>Link mit Gerätename</b> (<code>http://tipptrainer.local:8080/#tt-server=…</code>)</li>
+  <li>den <b>Schlüssel</b> (verbindet die Geräte mit dem Server)</li>
+  <li>das <b>Admin-Passwort der App</b> (zunächst <code>lernsachen</code>)</li>
+  <li>einen <b>QR-Code</b> im Terminal</li>
+</ul>
+<div class="box warn"><b>Wichtig:</b> Das Standard-Passwort <code>lernsachen</code> steht öffentlich im Quellcode. Bitte ändern Sie es (siehe Abschnitt „Laufende Nutzung“) – oder lassen Sie es bewusst, wenn ein niedriges Sicherheitsniveau für Ihre Klasse genügt.</div>
+
+<h2><span class="step">4</span>Geräte verbinden</h2>
+<h3>iPad / Tablet (einmal pro Gerät)</h3>
+<ol>
+  <li>Das Gerät muss im <b>selben Netz</b> (WLAN) wie der Pi sein.</li>
+  <li>In <b>Safari</b> den <b>Link mit Gerätename</b> öffnen, z.&nbsp;B.<br><code>http://tipptrainer.local:8080/#tt-server=SCHLÜSSEL</code><br>Den Link bekommen Sie am einfachsten per AirDrop, E-Mail oder Messenger auf das Gerät – oder Sie scannen den <b>QR-Code</b> aus dem Terminal mit der Kamera.</li>
+  <li>Die App öffnet sich und ist <b>automatisch mit dem Server verbunden</b>. Die Datenspeicherung läuft jetzt über den Pi.</li>
+  <li>Praktisch: in Safari auf <i>Teilen → Zum Home-Bildschirm</i> tippen. Dann startet die App wie ein normales Symbol.</li>
+</ol>
+<div class="box ok"><b>Tipp:</b> Richten Sie die Geräte mit dem <b>Namens-Link</b> (<code>….local</code>) ein. Dann bleiben sie auch verbunden, wenn der Pi in ein anderes Netz kommt und eine neue IP-Adresse bekommt.</div>
+
+<h3>Lehrer-PC</h3>
+<ol>
+  <li><code>http://tipptrainer.local:8080</code> im Browser öffnen (so lädt die App vom Pi, das ist wichtig – bitte nicht von einer https-Seite oder einer gespeicherten Datei öffnen).</li>
+  <li>Oben auf das Speicher-Symbol → <i>Eigener Server</i> → <b>Server-Adresse</b> und <b>Schlüssel</b> eintragen → <i>Verbinden</i>.</li>
+  <li>Zum Verwalten (Lektionen, Profile, Gruppen): oben rechts den Schalter <b>Admin</b> einschalten und das Admin-Passwort eingeben.</li>
+</ol>
+
+<h2>Laufende Nutzung</h2>
+<h3>Im Alltag</h3>
+<ul>
+  <li><b>Nichts zu tun.</b> Der Pi einfach eingeschaltet lassen – er braucht kaum Strom. Er startet nach einem Stromausfall von selbst wieder (dauert etwa eine halbe Minute).</li>
+  <li>Ist der Pi nicht erreichbar, arbeiten die Geräte <b>lokal weiter</b> und gleichen später automatisch ab. Es geht nichts verloren.</li>
+  <li>Zum <b>Ausschalten</b> besser vorher herunterfahren: <code>sudo shutdown now</code> (danach Strom trennen).</li>
+</ul>
+
+<h3>Verbindungsdaten und Passwort ansehen oder ändern</h3>
+<p>Per SSH am Pi anmelden (Schritt&nbsp;2) und dann:</p>
+<pre><code># Adresse, Links, Schlüssel, Passwort und QR-Code anzeigen
+cd /opt/tipptrainer &amp;&amp; sudo -u tipptrainer ./tipptrainer-server --info
+
+# nur das Admin-Passwort anzeigen
+sudo -u tipptrainer ./tipptrainer-server --passwort
+
+# Admin-Passwort ändern (gilt sofort, mindestens 4 Zeichen)
+sudo -u tipptrainer ./tipptrainer-server --passwort-setzen NEUESPASSWORT</code></pre>
+<p>Die Befehle müssen im Ordner <code>/opt/tipptrainer</code> ausgeführt werden. Das Admin-Passwort lässt sich bewusst <b>nicht in der App</b> ändern, damit alle Geräte dasselbe Passwort haben.</p>
+
+<h3>Sicherung (Backup)</h3>
+<ul>
+  <li>Alle Daten liegen im Ordner <code>/opt/tipptrainer/TippTrainer-Daten</code>: <code>daten.json</code> (aktueller Stand), <code>Sicherungen/</code> (die letzten 50 Fassungen) und <code>einstellungen.json</code> (Schlüssel, Passwort).</li>
+  <li>Diesen Ordner regelmäßig auf den eigenen Rechner kopieren. Der Ordner gehört dem Dienst, deshalb zuerst auf dem Pi (per SSH) ein Archiv anlegen:
+<pre><code>sudo tar -czf ~/TippTrainer-Sicherung.tar.gz -C /opt/tipptrainer TippTrainer-Daten &amp;&amp; sudo chown $USER ~/TippTrainer-Sicherung.tar.gz</code></pre>
+und es dann auf dem eigenen Rechner abholen:
+<pre><code>scp BENUTZER@tipptrainer.local:TippTrainer-Sicherung.tar.gz .</code></pre></li>
+  <li>Zusätzlich gibt es in der App das <b>Gesamt-Backup</b> (Gruppenübersicht, im Admin-Modus).</li>
+</ul>
+
+<h3>Programm aktualisieren</h3>
+<p>Neue Fassung wie in Schritt&nbsp;3 laden und entpacken, dann erneut <code>sudo sh installieren.sh</code> ausführen. <b>Alle Daten, Schlüssel und das Passwort bleiben erhalten.</b> Die Geräte müssen nichts tun.</p>
+
+<h3>Dienst steuern und Fehler suchen</h3>
+<pre><code>sudo systemctl status tipptrainer      # läuft er?
+sudo systemctl restart tipptrainer     # neu starten
+sudo journalctl -u tipptrainer -n 30   # letzte Meldungen
+sudo reboot                            # Pi neu starten</code></pre>
+
+<h3>Entfernen</h3>
+<pre><code>cd TippTrainer-Server
+sudo sh deinstallieren.sh              # Dienst und Programm entfernen, Daten bleiben
+sudo sh deinstallieren.sh --mit-daten  # auch die Daten löschen</code></pre>
+
+<h2>Der Pi kommt in ein anderes Netz</h2>
+<p><b>Schlüssel und Passwort bleiben gleich</b> – sie liegen auf dem Pi, nicht im Netz. Nur die IP-Adresse ändert sich.</p>
+<ol>
+  <li><b>Am besten per Netzwerkkabel anschließen.</b> Dann braucht der Pi keine Einrichtung.</li>
+  <li><b>Neues WLAN:</b> Pi erst per Kabel (oder mit Monitor und Tastatur) erreichbar machen, dann:<br><code>sudo nmcli device wifi connect "NETZNAME" password "WLAN-PASSWORT"</code><br>(Alternativ <code>sudo nmtui</code> für ein Menü.)</li>
+  <li>Pi finden: <code>tipptrainer.local</code> funktioniert meist auch im neuen Netz. Sonst die IP in der Geräteliste des Routers suchen.</li>
+  <li>Geräte, die mit dem <b>Namens-Link</b> eingerichtet wurden, finden den Pi von selbst. Wurde mit einer IP-Adresse eingerichtet, tragen Sie die neue Adresse in der App ein (Speicher-Symbol → Eigener Server) oder verbinden das Gerät erneut über den Link aus <code>--info</code>.</li>
+</ol>
+
+<h2>Wenn etwas nicht klappt</h2>
+<table>
+  <tr><th>Problem</th><th>Lösung</th></tr>
+  <tr><td>„Server nicht erreichbar“ in der App</td><td>Sind Gerät und Pi im <b>selben Netz</b>? (Viele Schul-WLANs trennen Geräte untereinander – Rückfrage bei der Schul-IT.) Läuft der Dienst (<code>sudo systemctl status tipptrainer</code>)? Probeweise die <b>IP-Adresse</b> statt des Namens eintragen: Klappt das, löst das Gerät den Namen <code>….local</code> nicht auf, oder der Router kennt noch eine <b>veraltete Adresse</b> für den Pi (alten Eintrag im Router löschen, dem Pi eine feste IP geben).</td></tr>
+  <tr><td>Die App wurde geöffnet, aber „Verbinden“ scheitert</td><td>Die App muss <b>vom Pi</b> geöffnet werden (<code>http://tipptrainer.local:8080</code>). Von einer https-Seite (z.&nbsp;B. der Online-Fassung auf GitHub Pages) blockiert der Browser die Verbindung zum Pi. Am Mac: <i>Systemeinstellungen → Datenschutz &amp; Sicherheit → Lokales Netzwerk</i> muss für den Browser erlaubt sein.</td></tr>
+  <tr><td><code>ssh</code> findet <code>tipptrainer.local</code> nicht</td><td>Pi und Rechner im selben Netz? Etwas warten (nach dem Einschalten dauert es ca. 1–2 Minuten). Sonst IP aus der Router-Geräteliste verwenden.</td></tr>
+  <tr><td>Es ging gestern, heute nicht</td><td>Strom und Netzwerkkabel prüfen. Per SSH <code>--info</code> aufrufen: Hat der Pi eine neue Adresse bekommen? (Dauerhaft vermeiden: im Router eine feste IP für den Pi reservieren.)</td></tr>
+  <tr><td>Port 8080 ist belegt (läuft noch ein anderes Programm)</td><td>Der Server weicht automatisch auf den nächsten freien Port aus (8081 …). Dann ändert sich die Adresse für die Geräte. Besser: in <code>/opt/tipptrainer/TippTrainer-Daten/einstellungen.json</code> den Wert <code>"port"</code> auf eine freie Nummer (z.&nbsp;B. 8090) setzen und <code>sudo systemctl restart tipptrainer</code> ausführen.</td></tr>
+  <tr><td>Passwort vergessen</td><td>Per SSH am Pi: <code>sudo -u tipptrainer ./tipptrainer-server --passwort</code> (im Ordner <code>/opt/tipptrainer</code>).</td></tr>
+  <tr><td>Alte Fassung wiederherstellen</td><td><code>sudo systemctl stop tipptrainer</code>, gewünschte Datei aus <code>Sicherungen/</code> als <code>daten.json</code> kopieren (Besitzer <code>tipptrainer</code> beibehalten), <code>sudo systemctl start tipptrainer</code>.</td></tr>
+</table>
+
+<h2>Datenschutz und Sicherheit – kurz</h2>
+<ul>
+  <li>Es ist <b>kein Cloud-Anbieter</b> beteiligt. Die Daten (Gruppen, Profilnamen, Lektionen, Lernstände) bleiben im Schulnetz auf dem Pi.</li>
+  <li>Die Übertragung im Schulnetz erfolgt über <code>http</code> (unverschlüsselt). Der Pi sollte deshalb <b>nicht direkt aus dem Internet erreichbar</b> sein – keine Portfreigabe im Router einrichten.</li>
+  <li>Wer den Schlüssel kennt, kann die Daten lesen und ändern. QR-Code und Schlüssel nur an Lehrkräfte und die eigenen Geräte weitergeben.</li>
+  <li>Das Admin-Passwort schützt die Verwaltung in der App vor neugierigen Kindern; es ist kein Hochsicherheits-Schutz.</li>
+  <li>Den Einsatz mit der bzw. dem <b>Datenschutzbeauftragten der Schule</b> abstimmen.</li>
+</ul>
+</main>
+</body>
+</html>

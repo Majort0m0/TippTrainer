@@ -2,8 +2,8 @@ package main
 
 // Admin-Passwort der App (nur im Server-Betrieb).
 //
-// Das Server-Programm ist "Passwortgeber": Beim ersten Start erzeugt es ein zufälliges Admin-Passwort
-// (einstellungen.json), zeigt es auf der Info-Seite und in der Kommandozeile an und liefert der App
+// Das Server-Programm ist "Passwortgeber": Beim ersten Start setzt es das Standard-Passwort
+// (defaultAdminPassword, in einstellungen.json), zeigt es auf der Info-Seite und in der Kommandozeile an und liefert der App
 // nur einen gesalzenen Hash mit (Meta-Tag "tipptrainer-admin"). Die App vergleicht das eingegebene
 // Passwort mit diesem Hash — das Passwort selbst steht nie in der ausgelieferten Seite.
 //
@@ -30,6 +30,10 @@ import (
 
 	"rsc.io/qr"
 )
+
+// Standard-Passwort bei neuen Installationen (bewusst einfach; die Lehrkraft kann es ändern).
+// Steht nur hier im Server-Programm – die App bekommt ausschließlich einen gesalzenen Hash.
+const defaultAdminPassword = "lernsachen"
 
 const (
 	adminKDFRounds   = 20000
@@ -81,6 +85,9 @@ func adminMetaValue() string {
 	}
 	return fmt.Sprintf("v1$%d$%s$%s", adminKDFRounds, cfg.AdminSalt, adminHash(cfg.AdminSalt, cfg.AdminPassword, adminKDFRounds))
 }
+
+// true, wenn noch das Standard-Passwort gilt (Hinweis zum Ändern)
+func adminPasswordIsDefault() bool { return adminPassword() == defaultAdminPassword }
 
 func adminPassword() string {
 	adminMu.Lock()
@@ -142,7 +149,7 @@ func ensureAdminPassword() bool {
 		return false
 	}
 	if cfg.AdminPassword == "" {
-		cfg.AdminPassword = randomString(adminAlphabet, adminPasswordLen)
+		cfg.AdminPassword = defaultAdminPassword
 	}
 	cfg.AdminSalt = randomString("0123456789abcdef", 16)
 	if err := saveConfigLocked(); err != nil {
@@ -249,6 +256,10 @@ func printInfoCLI() {
 			fmt.Println("\nQR-Code (iPad: mit der Kamera scannen):")
 			printQRText(connectURL(ip))
 		}
+	}
+	if u := nameConnectURL(); u != "" {
+		fmt.Printf("Link mit Gerätename:     %s\n", u)
+		fmt.Println("                         (bleibt in jedem Netz gültig, in dem Namen mit „.local“ erkannt werden)")
 	}
 	fmt.Printf("Schlüssel:               %s\n", cfg.Key)
 	fmt.Printf("Admin-Passwort (App):    %s\n", adminPassword())
